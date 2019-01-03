@@ -1,2 +1,2 @@
 # YAM
-YAM (Your automated machine) is ROS based robot.
+YAM (Your automated machine) is a robot.
