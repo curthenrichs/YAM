@@ -46,7 +46,7 @@
 * @param leftMotor is left motor controller
 * @param rightMotor is right motor controller
 */
-void drive_init(MotorController leftMotor, MotorController rightMotor);
+void drive_init(MotorController* leftMotor, MotorController* rightMotor);
 /**
 * Cartesian drivetrain takes an x and y coordinate pair to drive robot.
 * A transformation for rectangular to polor coordinates is performed meaning

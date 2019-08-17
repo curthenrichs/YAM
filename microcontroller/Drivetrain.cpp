@@ -32,8 +32,8 @@
 /*
  * Experimentally derived PWM range for Victor SP motor controllers
  */
-#define PWM_NEG_MAX 82   //! Lower limt turns in negaitve direction
-#define PWM_POS_MAX 172   //! Upper limit turns in positive direction
+#define PWM_NEG_MAX -255   //! Lower limt turns in negaitve direction
+#define PWM_POS_MAX 255   //! Upper limit turns in positive direction
 
 //==============================================================================
 //                           Private Attributes
@@ -42,11 +42,11 @@
 /**
  * Assigned pin connected to left motor controller
  */
-static MotorController _leftMotor;
+static MotorController* _leftMotor;
 /**
  * Assigned pin connected to right motor controller
  */
-static MotorController _rightMotor;
+static MotorController* _rightMotor;
 /**
  * Drive status of the motors. True if a motor is moving else False
  */
@@ -62,7 +62,7 @@ static bool _active = false;
  * @param leftMotor is left motor controller
  * @param rightMotor is right motor controller
  */
-void drive_init(MotorController leftMotor, MotorController rightMotor){
+void drive_init(MotorController* leftMotor, MotorController* rightMotor){
   _leftMotor = leftMotor;
   _rightMotor = rightMotor;
   drive_hard_stop();
@@ -153,8 +153,8 @@ bool drive_tank(int l, int r, bool invert){
   //convert to PWM signal
   float pwm_slope = (PWM_POS_MAX - PWM_NEG_MAX)/((TANK_RANGE_MAX - TANK_RANGE_MIN)*1.0f);
   float pwm_inter = PWM_POS_MAX - pwm_slope * TANK_RANGE_MAX;
-  unsigned int l_pwm = (unsigned int)(l * pwm_slope * (invert ? -1 : 1) * ((l < 0) ? 0.9f : 1) + pwm_inter);
-  unsigned int r_pwm = (unsigned int)(r * pwm_slope * ((r < 0) ? 0.9f : 1) + pwm_inter);
+  int l_pwm = (int)(l * pwm_slope * (invert ? -1 : 1) + pwm_inter);
+  int r_pwm = (int)(r * pwm_slope + pwm_inter);
 
 #if DEBUGGING_MODE
   Serial.print("PWM Slope: ");
@@ -182,8 +182,8 @@ bool drive_tank(int l, int r, bool invert){
  * Victor SP motorcontrollers that the signal has ended.
  */
 void drive_hard_stop(void){
-  _leftMotor.stop();
-  _rightMotor.stop();
+  _leftMotor->stop();
+  _rightMotor->stop();
 }
 
 /**
@@ -193,6 +193,6 @@ void drive_hard_stop(void){
  * @param r is pwm signal on right motor
  */
 void drive_set_pwm(int l, int r){
-  _leftMotor.drive(l);
-  _rightMotor.drive(r);
+  _leftMotor->drive(l);
+  _rightMotor->drive(r);
 }

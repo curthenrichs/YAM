@@ -27,22 +27,22 @@
 class MotorController{
 
 	private:
-		// Direction control pin (clockwise, counter-clockwise)
-		byte _dirPin;
-		// Stop pin, disables the active control of the motor.
-		byte _stopPin;
-		// Speed pin, controls the scaler speed of the motor.
-		byte _speedPin;
+		// Enable motor pin
+    byte _enable;
+    // Clockwise PWM output
+    byte _clw_pwm;
+    // Counter-clockwise PWM output
+    byte _cclw_pwm;
 
 	public:
 		/**
 		 * Constructor for motor controller maps the pins addresses to the software
 		 * structure.
-		 * @param dirPin direction control pin
-		 * @param stopPin enable/disable pin for controller
-		 * @param speedPin PWM pin to control speed of motor
+		 * @param enable_pin :: enable pin
+     * @param clw_pwm_pin :: clockwise pin
+     * @param cclw_pwm_pin :: counter-clockwise pin
 		 */
-		MotorController(byte dirPin, byte stopPin, byte speedPin);
+		MotorController(byte enable_pin, byte clw_pwm_pin, byte cclw_pwm_pin);
 		/**
      * Sets up interface with hardware, as constructor is called before hardware
      * in enumerated, thus an error occurs.

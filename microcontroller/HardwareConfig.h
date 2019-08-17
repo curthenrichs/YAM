@@ -26,12 +26,19 @@
 
 #define DEBUG_SERIAL_RX_PIN                 0
 #define DEBUG_SERIAL_TX_PIN                 1
+// ...
+#define MOTOR_A_PWM_1_PIN                   8
+#define MOTOR_A_ENABLE_PIN                  9
+#define MOTOR_B_ENABLE_PIN                  10
+#define MOTOR_A_PWM_2_PIN                   11
+#define MOTOR_B_PWM_1_PIN                   12
+#define MOTOR_B_PWM_2_PIN                   13
 
 //==============================================================================
 //                        Constant and Macro Definition
 //==============================================================================
 
-#define DEBUGGING_MODE                      false
+#define DEBUGGING_MODE                      true
 
 //==============================================================================
 //                                 Debug Serial

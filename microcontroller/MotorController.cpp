@@ -15,26 +15,20 @@
 #include "HardwareConfig.h"
 
 //==============================================================================
-//                       Constants and Macro Definitions
-//==============================================================================
-
-#define OFF_PWM 										(0)	//! No signal on pin = 0ff
-
-//==============================================================================
 //                           Class Implementation
 //==============================================================================
 
 /**
  * Constructor for motor controller maps the pins addresses to the software
  * structure.
- * @param dirPin direction control pin
- * @param stopPin enable/disable pin for controller
- * @param speedPin PWM pin to control speed of motor
+ * @param enable_pin :: enable pin
+ * @param clw_pwm_pin :: clockwise pin
+ * @param cclw_pwm_pin :: counter-clockwise pin
  */
-MotorController::MotorController(byte dirPin, byte stopPin, byte speedPin){
-	_dirPin = dirPin;
-	_stopPin = stopPin;
-	_speedPin = speedPin;
+MotorController::MotorController(byte enable_pin, byte clw_pwm_pin, byte cclw_pwm_pin){
+    _enable = enable_pin;
+    _clw_pwm = clw_pwm_pin;
+    _cclw_pwm = cclw_pwm_pin;
 }
 
 /**
@@ -42,19 +36,21 @@ MotorController::MotorController(byte dirPin, byte stopPin, byte speedPin){
  * in enumerated, thus an error occurs.
  */
 void MotorController::begin(void){
-  pinMode(_dirPin,OUTPUT);
-  pinMode(_stopPin,OUTPUT);
-  pinMode(_speedPin,OUTPUT);
-  digitalWrite(_dirPin,LOW);
-  digitalWrite(_stopPin,LOW);
-  digitalWrite(_speedPin,LOW);
+  pinMode(_enable,OUTPUT);
+  pinMode(_clw_pwm,OUTPUT);
+  pinMode(_cclw_pwm,OUTPUT);
+  digitalWrite(_enable,LOW);
+  digitalWrite(_clw_pwm,LOW);
+  digitalWrite(_cclw_pwm,LOW);
 }
 
 /**
  * Command the motor to stop moving (what ever that means)
  */
 void MotorController::stop(void) {
-	analogWrite(_speedPin,OFF_PWM);
+  digitalWrite(_enable,LOW);
+  digitalWrite(_clw_pwm,LOW);
+  digitalWrite(_cclw_pwm,LOW);
 }
 
 /**
@@ -74,9 +70,9 @@ void MotorController::drive(int speed) {
  * @param speed is scaler PWM speed to travel at
  */
 void MotorController::forward(byte speed){
-	digitalWrite(_dirPin,LOW);
-	digitalWrite(_stopPin,LOW);
-	analogWrite(_speedPin,speed);
+  digitalWrite(_enable,HIGH);
+	digitalWrite(_cclw_pwm,LOW);
+	analogWrite(_clw_pwm,speed);
 }
 
 /**
@@ -84,7 +80,7 @@ void MotorController::forward(byte speed){
  * @param speed is scaler PWM speed to travel at
  */
 void MotorController::reverse(byte speed){
-	digitalWrite(_dirPin,HIGH);
-	digitalWrite(_stopPin,LOW);
-	analogWrite(_speedPin,speed);
+  digitalWrite(_enable,HIGH);
+	digitalWrite(_clw_pwm,LOW);
+	analogWrite(_cclw_pwm,speed);
 }

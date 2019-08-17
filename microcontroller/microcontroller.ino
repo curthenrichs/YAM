@@ -11,9 +11,11 @@
 
 #include "HardwareConfig.h"
 #include "Drivetrain.h"
+#include "MotorController.h"
 
 #include "RunningAverage.h"
 #include <elapsedMillis.h>
+#include <ArduinoJson.h>
 
 //==============================================================================
 //                         Constants and Macro Declaration
@@ -45,6 +47,14 @@ static elapsedMillis _watchdog_time_from_last;
  * Drivetrain is set to move
  */
 static bool _drivetrain_active;
+/**
+ *
+ */
+static MotorController motor_left(MOTOR_A_ENABLE_PIN,MOTOR_A_PWM_1_PIN,MOTOR_A_PWM_2_PIN);
+/**
+ *
+ */
+static MotorController motor_right(MOTOR_B_ENABLE_PIN,MOTOR_B_PWM_1_PIN,MOTOR_B_PWM_2_PIN);
 
 //==============================================================================
 //                        Private Function Prototypes
@@ -62,11 +72,14 @@ void _feed_motor_watchdog(void);
 /**
  * Main intialization will setup the wifi connection and web server
  */
-void setup() {
-  watchdog_connection_status.clear();
+void setup() {` 
+  _watchdog_connection_status.clear();
   _watchdog_connection_status.addValue(WATCHDOG_TIME_THRESHOLD/2); //remove nan
   _watchdog_time_from_last = 0;
   _drivetrain_active = false;
+
+  drive_init(&motor_left,&motor_right);
+  drive_hard_stop();
 
 #if DEBUGGING_MODE
   DEBUG_SERIAL.begin(DEBUG_SERIAL_BAUD);
@@ -78,6 +91,11 @@ void setup() {
  *
  */
 void loop() {
+
+  _feed_motor_watchdog();
+  drive_cartesian(0,100);
+
+  // motor lock
   if(_watchdog_locked_out() && _drivetrain_active){
     drive_hard_stop();
     _drivetrain_active = false;
