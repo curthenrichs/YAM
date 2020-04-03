@@ -1,0 +1,23 @@
+<launch>
+
+  <arg name="video_device" default="/dev/video0"/>
+
+
+  <node name="usb_cam" pkg="usb_cam" type="usb_cam_node">
+    <param name="video_device" type="string" value="$(arg video_device)"/>
+
+    <param name="framerate" type="int" value="5"/>
+    <param name="video_width" type="int" value="640"/>
+    <param name="video_height" type="int" value="480"/>
+    <param name="pixel_format" type="string" value="yuyv"/>
+
+    <param name="camera_name" type="string" value="mapping_camera"/>
+    <param name="camera_frame_id" type="string" value="mapping_camera_link"/>
+  </node>
+
+  <node name="image_viewer_raw" pkg="rqt_image_view" type="rqt_image_view">
+    <remap from="image" to="usbcam/image_raw"/>
+  </node>
+
+
+</launch>
