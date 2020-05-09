@@ -75,9 +75,10 @@ void drive_init(MotorController* leftMotor, MotorController* rightMotor){
  * an Arduino.
  * @param x is x-axis value from defined min to max represents amount turning
  * @param y is y-axis value from defined min to max represents amount forward
+ * @param invert (optional) inverts a motor to allow for correct hardware movement
  * @return true if had to clamp input values down to defined range else false
  */
-bool drive_cartesian(int x, int y){
+bool drive_cartesian(int x, int y, bool invert){
   //bound clamping
   bool clamped = false;
   if(x > CARTESIAN_RANGE_MAX){
@@ -121,7 +122,7 @@ bool drive_cartesian(int x, int y){
 #endif
 
   //drive tank
-  return drive_tank(dl,dr,false) || clamped;
+  return drive_tank(dl,dr,invert) || clamped;
 }
 
 /**

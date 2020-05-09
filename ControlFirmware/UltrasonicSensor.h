@@ -28,6 +28,7 @@ class UltrasonicSensor{
 	private:
 		// pin connected to sensor IO line
 		byte _pin;
+		long _value;
 
 	public:
 		/**
@@ -37,12 +38,16 @@ class UltrasonicSensor{
 		 */
 		UltrasonicSensor(byte pin);
 		/**
-		 * Gets the distance to closest object from the sensor. If distance to
-		 * object is a really large value then this is effectively infinity due
-		 * to limit on sensor data output.
+		 * Gets the distance to closest object from the sensor from last update.
+		 * If distance to object is a really large value then this is effectively
+		 * infinity due to limit on sensor data output.
 		 * @return long with a distance in inches
 		 */
 		long getDistance(void);
+		/**
+		 * Performs actual sensor scan in environment.
+		 */
+		void update(void);
 };
 
 #endif

@@ -1,10 +1,9 @@
 /**
  * MotorController
  * @author Curt Henrichs
- * @date 7-22-2018
+ * @date 12-25-19
  *
- * Abstraction of the Arduino motor controller shield to control the single
- * drive motor of roverbot.
+ * Controller interface for the Cytron RB-Cyt-153 Motor Controller.
  */
 
 #ifndef MOTOR_CONTROL_H
@@ -21,28 +20,24 @@
 //==============================================================================
 
 /**
- * MotorController handles the interface between the hardware motor, Roverbot's
- * internal control signals, and the aims of the firmware interface.
+ * MotorController handles the interface between the hardware motor
  */
-class MotorController{
+class MotorController {
 
 	private:
-		// Enable motor pin
-    byte _enable;
-    // Clockwise PWM output
-    byte _clw_pwm;
-    // Counter-clockwise PWM output
-    byte _cclw_pwm;
+		// Direction pin
+		byte _dir_pin;
+		// PWM speed pin
+		byte _pwm_pin;
 
 	public:
 		/**
 		 * Constructor for motor controller maps the pins addresses to the software
 		 * structure.
-		 * @param enable_pin :: enable pin
-     * @param clw_pwm_pin :: clockwise pin
-     * @param cclw_pwm_pin :: counter-clockwise pin
+		 * @param dir_pin :: direction pin
+     * @param pwm_pin :: pwm pin
 		 */
-		MotorController(byte enable_pin, byte clw_pwm_pin, byte cclw_pwm_pin);
+		MotorController(byte dir_pin, byte pwm_pin);
 		/**
      * Sets up interface with hardware, as constructor is called before hardware
      * in enumerated, thus an error occurs.

@@ -26,6 +26,7 @@
 UltrasonicSensor::UltrasonicSensor(byte pin){
 	//member initialization
 	_pin = pin;
+	_value = 0;
 
 	//configure hardware
 	pinMode(_pin, OUTPUT);
@@ -33,12 +34,19 @@ UltrasonicSensor::UltrasonicSensor(byte pin){
 }
 
 /**
- * Gets the distance to closest object from the sensor. If distance to
- * object is a really large value then this is effectively infinity due
- * to limit on sensor data output.
+ * Gets the distance to closest object from the sensor from last update.
+ * If distance to object is a really large value then this is effectively
+ * infinity due to limit on sensor data output.
  * @return long with a distance in inches
  */
-long UltrasonicSensor::getDistance(void){
+long UltrasonicSensor::getDistance(void) {
+	return _value;
+}
+
+/**
+ * Performs actual sensor scan in environment.
+ */
+void UltrasonicSensor::update(void){
 	//these are the variabels for the duration of the high pulse and the distance
 	// away an object is
 	long duration, inches;
@@ -60,5 +68,5 @@ long UltrasonicSensor::getDistance(void){
 	inches = duration/74/2;
 
 	//return the value to the program
-	return inches;
+	_value = inches;
 }
