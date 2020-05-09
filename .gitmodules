@@ -1,3 +1,0 @@
-[submodule "libraries/monodepth2"]
-	path = libraries/monodepth2
-	url = https://github.com/nianticlabs/monodepth2.git
