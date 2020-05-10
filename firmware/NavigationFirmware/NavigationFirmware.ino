@@ -3,7 +3,7 @@
  */
 
 // Note need to develop battery interface
-// Need to develop JSON serial interface
+// Need to develop JSON serial interface or ROS interfaces
 
 //==============================================================================
 //                               Libraries
@@ -200,14 +200,14 @@ void wallBanger_simple(void) {
 
 void wallBanger_fancy(void) {
   const int turnBound = 10;
-  
+
   // Pack sensor values
   int sensorValues[5];
   for (int i=1; i<4; i++) {
     sensorValues[i] = ultrasonicSensors[i-1].getDistance();
     if (sensorValues[i] > 80) {
       sensorValues[i] = 80;
-      
+
     }
   }
   sensorValues[0] = turnBound;
@@ -226,7 +226,7 @@ void wallBanger_fancy(void) {
   } else {
 
     // Apply Channel bypass
-    double channel = sqrt(sq(-0.707 * sensorValues[1] - 0.707 * sensorValues[3]) 
+    double channel = sqrt(sq(-0.707 * sensorValues[1] - 0.707 * sensorValues[3])
                         + sq(0.707 * sensorValues[1] - 0.707 * sensorValues[3]));
     if (channel < 8) {
       sensorValues[2] = 0;
@@ -285,7 +285,7 @@ void wallBanger_fancy(void) {
 
     DEBUG_SERIAL.print("maxIndex: ");
     DEBUG_SERIAL.println(maxIndex);
-    
+
     DEBUG_SERIAL.print("X: ");
     DEBUG_SERIAL.print(x);
     DEBUG_SERIAL.print(" Y: ");
