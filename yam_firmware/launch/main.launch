@@ -1,0 +1,10 @@
+<launch>
+
+  <arg name="firmware_type" default="navigation_firmware"/>
+  <arg name="serial_port" default="/dev/ttyUSB0"/>
+
+  <node pkg="rosserial_arduino" type="serial_node.py" name="$(arg firmware_type)">
+    <param name="port" value="$(arg serial_port)"/>
+  </node>
+
+</launch>

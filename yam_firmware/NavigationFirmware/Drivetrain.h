@@ -31,10 +31,10 @@
 //                       Constant and Macro Definitions
 //==============================================================================
 
-#define CARTESIAN_RANGE_MIN   -100    //! Full negative direction
-#define CARTESIAN_RANGE_MAX    100    //! Full positive direction
-#define TANK_RANGE_MIN        -100    //! Full negative direction
-#define TANK_RANGE_MAX         100    //! Full positive direction
+#define CARTESIAN_RANGE_MIN           -100    //! Full negative direction
+#define CARTESIAN_RANGE_MAX            100    //! Full positive direction
+#define DIFFERENTIAL_RANGE_MIN        -100    //! Full negative direction
+#define DIFFERENTIAL_RANGE_MAX         100    //! Full positive direction
 
 //==============================================================================
 //                         Pulic Function Prototypes
@@ -57,19 +57,19 @@ void drive_init(MotorController* leftMotor, MotorController* rightMotor);
 * @param invert (optional) inverts a motor to allow for correct hardware movement
 * @return true if had to clamp input values down to defined range else false
 */
-bool drive_cartesian(int x, int y, bool invert = true);
+bool drive_cartesian(float x, float y, bool invert = true);
 /**
-* Tank drive is left, right motor pair that uses the difference in power to
+* Differential drive is left, right motor pair that uses the difference in power to
 * steer.
 * @param l is left motor value from defined min to max
 * @param r is right motor value from defined min to max
 * @param invert (optional) inverts a motor to allow for correct hardware movement
 * @return true if had to clamp input values down to defined range else false
 */
-bool drive_tank(int l, int r,bool invert = true);
+bool drive_differential(float l, float r,bool invert = true);
 /**
 * Signals a hard stop which cuts the PWM wave to zero thereby signaling the
-* Victor SP motorcontrollers that the signal has ended.
+* motorcontrollers that the signal has ended.
 */
 void drive_hard_stop(void);
 /**

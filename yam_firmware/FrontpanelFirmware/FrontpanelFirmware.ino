@@ -7,6 +7,8 @@
 //==============================================================================
 
 #include "HardwareConfig.h"
+#include "HexGPIOInterface.h"
+#include "RaspberryPiPowerInterface.h"
 
 //==============================================================================
 //                         Constants and Macro Declaration

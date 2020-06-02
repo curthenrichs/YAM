@@ -78,7 +78,7 @@ void drive_init(MotorController* leftMotor, MotorController* rightMotor){
  * @param invert (optional) inverts a motor to allow for correct hardware movement
  * @return true if had to clamp input values down to defined range else false
  */
-bool drive_cartesian(int x, int y, bool invert){
+bool drive_cartesian(float x, float y, bool invert){
   //bound clamping
   bool clamped = false;
   if(x > CARTESIAN_RANGE_MAX){
@@ -106,71 +106,41 @@ bool drive_cartesian(int x, int y, bool invert){
   float dl = radius * cos(angle);
   float dr = radius * sin(angle);
 
-#if DEBUGGING_MODE
-  Serial.print("X input: ");
-  Serial.print(x);
-  Serial.print(", Y input: ");
-  Serial.println(y);
-  Serial.print("Polar Form of inputs, r: ");
-  Serial.print(radius);
-  Serial.print(", a: ");
-  Serial.println(angle);
-  Serial.print("Left output: ");
-  Serial.print(dl);
-  Serial.print(", Right output: ");
-  Serial.println(dr);
-#endif
-
   //drive tank
-  return drive_tank(dl,dr,invert) || clamped;
+  return drive_differential(dl,dr,invert) || clamped;
 }
 
 /**
- * Tank drive is left, right motor pair that uses the difference in power to
+ * Differential drive is left, right motor pair that uses the difference in power to
  * steer.
  * @param l is left motor value from defined min to max
  * @param r is right motor value from defined min to max
  * @param invert (optional) inverts a motor to allow for correct hardware movement
  * @return true if had to clamp input values down to defined range else false
  */
-bool drive_tank(int l, int r, bool invert){
+bool drive_differential(float l, float r, bool invert){
   //bound clamping
   bool clamped = false;
-  if(l > TANK_RANGE_MAX){
-    l = TANK_RANGE_MAX;
+  if(l > DIFFERENTIAL_RANGE_MAX){
+    l = DIFFERENTIAL_RANGE_MAX;
     clamped = true;
-  }else if(l < TANK_RANGE_MIN){
-    l = TANK_RANGE_MIN;
+  }else if(l < DIFFERENTIAL_RANGE_MIN){
+    l = DIFFERENTIAL_RANGE_MIN;
     clamped = true;
   }
-  if(r > TANK_RANGE_MAX){
-    r = TANK_RANGE_MAX;
+  if(r > DIFFERENTIAL_RANGE_MAX){
+    r = DIFFERENTIAL_RANGE_MAX;
     clamped = true;
-  }else if(r < TANK_RANGE_MIN){
-    r = TANK_RANGE_MIN;
+  }else if(r < DIFFERENTIAL_RANGE_MIN){
+    r = DIFFERENTIAL_RANGE_MIN;
     clamped = true;
   }
 
   //convert to PWM signal
-  float pwm_slope = (PWM_POS_MAX - PWM_NEG_MAX)/((TANK_RANGE_MAX - TANK_RANGE_MIN)*1.0f);
-  float pwm_inter = PWM_POS_MAX - pwm_slope * TANK_RANGE_MAX;
+  float pwm_slope = (PWM_POS_MAX - PWM_NEG_MAX)/((DIFFERENTIAL_RANGE_MAX - DIFFERENTIAL_RANGE_MIN)*1.0f);
+  float pwm_inter = PWM_POS_MAX - pwm_slope * DIFFERENTIAL_RANGE_MAX;
   int l_pwm = (int)(l * pwm_slope * (invert ? -1 : 1) + pwm_inter);
   int r_pwm = (int)(r * pwm_slope + pwm_inter);
-
-#if DEBUGGING_MODE
-  Serial.print("PWM Slope: ");
-  Serial.print(pwm_slope);
-  Serial.print(", PWM Intercept: ");
-  Serial.println(pwm_inter);
-  Serial.print("Left Input: ");
-  Serial.print(l);
-  Serial.print(", Left PWM: ");
-  Serial.println(l_pwm);
-  Serial.print("Right Input: ");
-  Serial.print(r);
-  Serial.print(", Right PWM: ");
-  Serial.println(r_pwm);
-#endif
 
   //set PWM
   drive_set_pwm(l_pwm,r_pwm);
@@ -180,7 +150,7 @@ bool drive_tank(int l, int r, bool invert){
 
 /**
  * Signals a hard stop which cuts the PWM wave to zero thereby signaling the
- * Victor SP motorcontrollers that the signal has ended.
+ * motorcontrollers that the signal has ended.
  */
 void drive_hard_stop(void){
   _leftMotor->stop();

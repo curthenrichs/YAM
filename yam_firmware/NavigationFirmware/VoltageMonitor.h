@@ -1,5 +1,5 @@
 /**
- * BatteryMonitor
+ * VoltageMonitor
  * @author Curt Henrichs
  * @date 12-25-19
  *
@@ -16,13 +16,24 @@
 #include <Arduino.h>
 
 //==============================================================================
+//                      Constants and Macro Definitions
+//==============================================================================
+
+enum State {
+  POWER_GOOD,
+  POWER_LOW,
+  POWER_EMERGENCY,
+  ESTOP_ACTIVE
+};
+
+//==============================================================================
 //                             Class Declaration
 //==============================================================================
 
 /**
  * Wrap ADC interface and conversions for each battery
  */
-class BatteryMonitor {
+class VoltageMonitor {
 
   private:
     // store last value from ADC
@@ -36,15 +47,17 @@ class BatteryMonitor {
 
   public:
 
-    BatteryMonitor(byte pin, float slope, float intercept);
+    VoltageMonitor(byte pin, float slope, float intercept);
 
-    BatteryMonitor(byte pin, float slope);
+    VoltageMonitor(byte pin, float slope);
 
-    BatteryMonitor(byte pin);
+    VoltageMonitor(byte pin);
 
     float getVoltage(void);
 
     int getRaw(void);
+
+    enum State getState(void);
 
     void update(void);
 };

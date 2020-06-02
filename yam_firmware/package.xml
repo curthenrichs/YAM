@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>yam</name>
+  <name>yam_firmware</name>
   <version>0.0.0</version>
-  <description>The yam package</description>
+  <description>The yam_firmware package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
