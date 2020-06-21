@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="library_path" default="~/sketchbook/libraries"/>
+  <arg name="library_path" default="~/snap/arduino/current/Arduino/libraries"/>
 
   <node pkg="yam_firmware" type="build_roslib.py" name="build_roslib" args="$(arg library_path)"/>
 
