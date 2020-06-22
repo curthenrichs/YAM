@@ -13,7 +13,6 @@
 #include "UltrasonicSensor.h"
 #include "Watchdog.h"
 
-//#include <ArduinoJson.h>
 #include <elapsedMillis.h>
 
 #define USE_USBCON
@@ -32,6 +31,7 @@
 #define WATCHDOG_TIMER_TIME (50)
 #define ULTRASONIC_TIMER_TIME (1)
 #define ROBOT_STATE_TIME (250)
+#define ROS_HANDLER_SPIN_TIME (1000)
 
 //==============================================================================
 //                      Private Function Prototypes
@@ -54,6 +54,7 @@ static int _ultrasonic_sensor_state = 0;
 static elapsedMillis _watchdog_timeout_timer;
 static elapsedMillis _ultrasonic_sensor_timer;
 static elapsedMillis _robot_state_timer;
+static elapsedMillis _ros_handler_spin_timer;
 
 static MotorController rightMotor(MOTOR_0_DIR_PIN,MOTOR_0_PWM_PIN);
 static MotorController leftMotor(MOTOR_1_DIR_PIN,MOTOR_1_PWM_PIN);
@@ -73,7 +74,7 @@ static VoltageMonitor voltageMonitor(VOLTAGE_VIN_PIN,VOLTAGE_VIN_SLOPE,VOLTAGE_V
 static ros::NodeHandle nodeHandler;
 
 static yam_msgs::RobotState robotState_msg;
-static ros::Publisher robot_state_pub("hardware/robot_state", &robotState_msg);
+static ros::Publisher robot_state_pub("rs", &robotState_msg);
 
 static sensor_msgs::Range ultrasonic_msgs[3] = {
   sensor_msgs::Range(),
@@ -81,9 +82,9 @@ static sensor_msgs::Range ultrasonic_msgs[3] = {
   sensor_msgs::Range()
 };
 static char* ultrasonic_frames[3] = {
-  "ultrasonic_left",
-  "ultrasonic_center",
-  "ultrasonci_right"
+  "ul",
+  "uc",
+  "ur"
 };
 static ros::Publisher range_pubs[3] = {
   ros::Publisher(ultrasonic_frames[0],&ultrasonic_msgs[0]),
@@ -91,9 +92,9 @@ static ros::Publisher range_pubs[3] = {
   ros::Publisher(ultrasonic_frames[2],&ultrasonic_msgs[2])
 };
 
-static ros::Subscriber<std_msgs::Bool> heartbeat_sub("hardware/heartbeat", heartbeat_cb);
-static ros::Subscriber<std_msgs::Bool> autonomous_mode_sub("hardware/autonomous_mode", autonomous_mode_cb);
-static ros::Subscriber<yam_msgs::DifferentialDrive> differential_drive_sub("hardware/differential_drive", differential_drive_cb);
+static ros::Subscriber<std_msgs::Bool> heartbeat_sub("hb", heartbeat_cb);
+static ros::Subscriber<std_msgs::Bool> autonomous_mode_sub("ai", autonomous_mode_cb);
+static ros::Subscriber<yam_msgs::DifferentialDrive> differential_drive_sub("dv", differential_drive_cb);
 
 //==============================================================================
 //                                 MAIN
@@ -104,15 +105,15 @@ static ros::Subscriber<yam_msgs::DifferentialDrive> differential_drive_sub("hard
  */
 void setup(void) {
 
-  watchdog_begin();
+  /* Initialize Hardware */
+  
+  //watchdog_begin();
+  //leftMotor.begin();
+  //rightMotor.begin();
+  //drive_init(&leftMotor,&rightMotor);
+  //drive_hard_stop();
 
-  leftMotor.begin();
-  rightMotor.begin();
-  drive_init(&leftMotor,&rightMotor);
-  drive_hard_stop();
-
-  _watchdog_timeout_timer = 0;
-  _ultrasonic_sensor_timer = 0;
+  /* Initialize ROS */
 
   nodeHandler.initNode();
 
@@ -128,6 +129,13 @@ void setup(void) {
 
     nodeHandler.advertise(range_pubs[i]);
   }
+  
+  /* Initialize Timers */
+  
+  _watchdog_timeout_timer = 0;
+  _ultrasonic_sensor_timer = 0;
+  _robot_state_timer = 0;
+  _ros_handler_spin_timer = 0;
 }
 
 /**
@@ -136,6 +144,7 @@ void setup(void) {
 void loop(void) {
 
   // Update watchdog results
+  /*
   if (_watchdog_timeout_timer >= WATCHDOG_TIMER_TIME) {
     _watchdog_timeout_timer -=  WATCHDOG_TIMER_TIME;
 
@@ -147,8 +156,10 @@ void loop(void) {
       _drivetrain_active = true;
     }
   }
+  */
 
   // scan ultrasonics
+  /*
   if (_ultrasonic_sensor_timer >= ULTRASONIC_TIMER_TIME) {
     _ultrasonic_sensor_timer -= ULTRASONIC_TIMER_TIME;
 
@@ -166,6 +177,7 @@ void loop(void) {
       _ultrasonic_sensor_state = 0;
     }
   }
+  */
 
   // publish robot state
   if (_robot_state_timer  >= ROBOT_STATE_TIME) {
@@ -182,12 +194,19 @@ void loop(void) {
   }
 
   // Autonomous mode
+  /*
   if (_autonomous_mode && _drivetrain_active) {
     wallBanger();
   }
+  */
 
-  nodeHandler.spinOnce();
-  delay(1);
+  if (_ros_handler_spin_timer >= ROS_HANDLER_SPIN_TIME) {
+	_ros_handler_spin_timer -= ROS_HANDLER_SPIN_TIME;
+	
+	nodeHandler.spinOnce();
+  }
+  
+  delay(10);
 }
 
 //==============================================================================

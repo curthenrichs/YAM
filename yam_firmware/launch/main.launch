@@ -2,9 +2,11 @@
 
   <arg name="firmware_type" default="navigation_firmware"/>
   <arg name="serial_port" default="/dev/ttyACM0"/>
+  <arg name="baud" default="57600"/>
 
   <node pkg="rosserial_arduino" type="serial_node.py" name="$(arg firmware_type)">
     <param name="port" value="$(arg serial_port)"/>
+    <param name="baud" value="$(arg baud)"/>
   </node>
 
 </launch>
