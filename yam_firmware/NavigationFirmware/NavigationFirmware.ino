@@ -13,7 +13,7 @@
 #include "UltrasonicSensor.h"
 #include "Watchdog.h"
 
-#include <ArduinoJson.h>
+//#include <ArduinoJson.h>
 #include <elapsedMillis.h>
 
 #define USE_USBCON
@@ -70,12 +70,12 @@ static VoltageMonitor voltageMonitor(VOLTAGE_VIN_PIN,VOLTAGE_VIN_SLOPE,VOLTAGE_V
 //                             ROS Interface
 //==============================================================================
 
-static ros::NodeHandler nodeHandler;
+static ros::NodeHandle nodeHandler;
 
 static yam_msgs::RobotState robotState_msg;
 static ros::Publisher robot_state_pub("hardware/robot_state", &robotState_msg);
 
-static std_msgs::Float32 ultrasonic_msgs[3] = {
+static sensor_msgs::Range ultrasonic_msgs[3] = {
   sensor_msgs::Range(),
   sensor_msgs::Range(),
   sensor_msgs::Range()
@@ -84,12 +84,12 @@ static char* ultrasonic_frames[3] = {
   "ultrasonic_left",
   "ultrasonic_center",
   "ultrasonci_right"
-}
+};
 static ros::Publisher range_pubs[3] = {
   ros::Publisher(ultrasonic_frames[0],&ultrasonic_msgs[0]),
   ros::Publisher(ultrasonic_frames[1],&ultrasonic_msgs[1]),
   ros::Publisher(ultrasonic_frames[2],&ultrasonic_msgs[2])
-}
+};
 
 static ros::Subscriber<std_msgs::Bool> heartbeat_sub("hardware/heartbeat", heartbeat_cb);
 static ros::Subscriber<std_msgs::Bool> autonomous_mode_sub("hardware/autonomous_mode", autonomous_mode_cb);
@@ -136,8 +136,8 @@ void setup(void) {
 void loop(void) {
 
   // Update watchdog results
-  if (_watchdog_timeout_timer >= WATCHDOG_TIMEOUT_TIMER_TIME) {
-    _watchdog_timeout_timer -=  WATCHDOG_TIMEOUT_TIMER_TIME;
+  if (_watchdog_timeout_timer >= WATCHDOG_TIMER_TIME) {
+    _watchdog_timeout_timer -=  WATCHDOG_TIMER_TIME;
 
     // Handle watchdog to motor lockout
     if(watchdog_is_locked() && _drivetrain_active){
@@ -156,8 +156,8 @@ void loop(void) {
 
     // Publish Ultrasonic state
     sensor_msgs::Range* range_msg = &ultrasonic_msgs[_ultrasonic_sensor_state];
-    range_msg->header->seq += 1;
-    range_msg->header->stamp = nodeHandler.now();
+    range_msg->header.seq += 1;
+    range_msg->header.stamp = nodeHandler.now();
     range_msg->range = ultrasonicSensors[_ultrasonic_sensor_state].getDistance();
     range_pubs[_ultrasonic_sensor_state].publish(range_msg);
 

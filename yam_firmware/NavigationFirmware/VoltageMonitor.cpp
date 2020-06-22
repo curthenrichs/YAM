@@ -60,7 +60,7 @@ enum State VoltageMonitor::getState(void) {
   } else if (voltage > POWER_LOW_VOLTAGE) {
     return POWER_LOW;
   } else if (voltage <= ESTOP_VOLTAGE) {
-    return ESTOP_VOLTAGE;
+    return ESTOP_ACTIVE;
   } else {
     return POWER_EMERGENCY;
   }
