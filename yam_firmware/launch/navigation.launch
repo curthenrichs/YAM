@@ -1,0 +1,17 @@
+<launch>
+
+  <arg name="nav_port" default="/dev/ttyACM0"/>
+  <arg name="nav_baud" default="57600"/>
+
+  <group ns="rosserial">
+    <node pkg="rosserial_arduino" type="serial_node.py" name="navigation_firmware_rosserial">
+      <param name="port" value="$(arg nav_port)"/>
+      <param name="baud" value="$(arg nav_baud)"/>
+    </node>
+  </group>
+  
+  <node pkg="yam_firmware" type="navigation_firmware_driver.py" name="navigation_firmware_driver">
+	<param name="heartbeat_time" value="0.3"/>
+  </node>
+  
+</launch>

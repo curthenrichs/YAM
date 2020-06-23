@@ -5,4 +5,5 @@
 ##  $1 = path to sketchbook libraries directory
 
 cd $1
-rm -rf ros_lib
+echo pwd
+rm -rf ./ros_lib

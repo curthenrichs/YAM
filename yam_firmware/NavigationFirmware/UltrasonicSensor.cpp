@@ -64,10 +64,10 @@ float UltrasonicSensor::update(void){
 
 	//switch to input then wait for the trigger
 	pinMode(_pin, INPUT);
-	duration = pulseIn(_pin, HIGH);
+	duration = pulseIn(_pin, HIGH); //PULSE_IN_TIMEOUT
 
 	//convert to meters
-	meters = duration / 29.0f / 2.0f / 100.0f;
+	meters = duration / 5800.0f; // 29.0f / 2.0f / 100.0f;
 
 	//return the value to the program
 	_value = meters;

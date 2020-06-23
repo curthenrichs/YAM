@@ -2,6 +2,10 @@
  * Watchdog
  * @author Curt Henrichs
  * @date 1-27-19 
+ * 
+ * Provides a simple watchdog subsystem that should be fed when receiving 
+ * messages. This can be used to lock unsafe subsystems in case of communication
+ * failure.
  */
  
 #ifndef WATCHDOG_H

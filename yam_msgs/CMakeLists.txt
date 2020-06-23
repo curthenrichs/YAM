@@ -53,6 +53,7 @@ add_message_files(
   CartesianDrive.msg
   DifferentialDrive.msg
   RobotState.msg
+  Ultrasonics.msg
 )
 
 ## Generate services in the 'srv' folder
