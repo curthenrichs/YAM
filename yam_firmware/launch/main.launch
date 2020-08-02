@@ -1,15 +1,33 @@
 <launch>
 
+  <!-- Arguements -->
+
   <arg name="nav_port" default="/dev/ttyACM0"/>
   <arg name="nav_baud" default="57600"/>
 
-  <node pkg="rosserial_arduino" type="serial_node.py" name="navigation_firmware_rosserial">
-    <param name="port" value="$(arg nav_port)"/>
-    <param name="baud" value="$(arg nav_baud)"/>
+  <arg name="fp_port" default="/dev/ttyACM1"/>
+  <arg name="fp_baud" default="57600"/>
+  
+  <!-- IMU Node -->
+  <node name="imu" pkg="mpu9250_9dof_imu" type="imuout"/>
+  
+  <!-- Heartbeat -->
+  <node name="heartbeat" pkg="yam_firmware" type="heartbeat_node.py">
+	<param name="heartbeat_time" value="0.3"/>
   </node>
   
-  <node pkg="yam_firmware" type="navigation_firmware_driver.py name="navigation_firmware_driver>
-	<param name="heartbeat_time" value="300"/>
-  </node>
+  <!-- Navigation Firmware -->
+  <include file="$(find yam_firmware)/launch/navigation.launch">
+	<arg name="port" value="$(arg nav_port)"/>
+	<arg name="baud" value="$(arg nav_baud)"/>
+	<arg name="run_heartbeat" value="false"/>
+  </include>
+  
+  <!-- Frontpanel Firmware -->
+  <include file="$(find yam_firmware)/launch/frontpanel.launch">
+	<arg name="port" value="$(arg fp_port)"/>
+	<arg name="baud" value="$(arg fp_baud)"/>
+	<arg name="run_heartbeat" value="false"/>
+  </include>
   
 </launch>

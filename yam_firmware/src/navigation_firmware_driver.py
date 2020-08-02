@@ -7,15 +7,10 @@ from sensor_msgs.msg import Range, BatteryState
 from yam_msgs.msg import Ultrasonics, RobotState
 from yam_msgs.msg import CartesianDrive, DifferentialDrive
 
-DEFAULT_HEARTBEAT_TIME = 0.5
-
 
 class NavigationFirmwareDriver:
 	
-	def __init__(self, heartbeat):
-		self._heartbeat_enabled = True
-
-		self._hw_heartbeat_pub = rospy.Publisher("rosserial/hb",Bool,queue_size=5)
+	def __init__(self):
 		self._hw_wallbanger_pub = rospy.Publisher("rosserial/ai",Bool,queue_size=5)
 		self._hw_cartesian_pub = rospy.Publisher("rosserial/cd",CartesianDrive,queue_size=5)
 		self._hw_differential_pub = rospy.Publisher("rosserial/dd",DifferentialDrive,queue_size=5)
@@ -35,8 +30,6 @@ class NavigationFirmwareDriver:
 		self._set_wallbanger_state_sub = rospy.Subscriber("navigation_firmware/set_wallbanger_state",Bool,self._set_wallbanger_state_cb)
 		self._hw_ultrasonics_sub = rospy.Subscriber("rosserial/us",Ultrasonics,self._hw_ultrasonics_cb)
 		self._hw_robot_state_sub = rospy.Subscriber("rosserial/rs",RobotState,self._hw_robot_state_cb)
-
-		rospy.Timer(rospy.Duration(heartbeat),self._heartbeat_cb)
 
 	def _cartesian_drive_cb(self, msg):
 		self._hw_cartesian_pub.publish(msg)
@@ -118,16 +111,11 @@ class NavigationFirmwareDriver:
 			strMsg.data = "estop-active"
 			
 		self._robot_state_pub.publish(strMsg)
-		
-	def _heartbeat_cb(self, event):
-		self._hw_heartbeat_pub.publish(self._heartbeat_enabled)
 
 
 if __name__ == "__main__":
 	rospy.init_node("navigation_firmware_driver")
-	
-	heartbeat_time = rospy.get_param("heartbeat_time",DEFAULT_HEARTBEAT_TIME)
-	
-	node = NavigationFirmwareDriver(heartbeat_time)
+
+	node = NavigationFirmwareDriver()
 	
 	rospy.spin()

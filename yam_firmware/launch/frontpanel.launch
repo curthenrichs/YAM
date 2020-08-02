@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="port" default="/dev/ttyACM0"/>
+  <arg name="port" default="/dev/ttyACM1"/>
   <arg name="baud" default="57600"/>
   <arg name="run_heartbeat" default="true"/>
 
@@ -9,12 +9,12 @@
   </node>
 
   <group ns="rosserial">
-    <node pkg="rosserial_arduino" type="serial_node.py" name="navigation_firmware_rosserial">
+    <node pkg="rosserial_arduino" type="serial_node.py" name="frontpanel_firmware_rosserial">
       <param name="port" value="$(arg port)"/>
       <param name="baud" value="$(arg baud)"/>
     </node>
   </group>
   
-  <node pkg="yam_firmware" type="navigation_firmware_driver.py" name="navigation_firmware_driver"/>
+  <node pkg="yam_firmware" type="frontpanel_firmware_driver.py" name="frontpanel_firmware_driver"/>
   
 </launch>
