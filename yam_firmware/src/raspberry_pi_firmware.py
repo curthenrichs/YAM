@@ -14,13 +14,14 @@ from subprocess import call
 
 DEFAULT_LOOP_TIMESTEP = 0.25
 DEFAULT_FILTER_LENGTH = 4
+SHUTDOWN_DISPLAY_TIME = 2
 
 # Raspberry Pi pin configuration:
 RST_PIN = 24 		# Unused - but would reset the OLED interface
 I2C_SDA_PIN = 2 	# OLED Comm
 I2C_SCL_PIN = 3 	# OLED Comm
 SHUT_OFF_PIN = 4 	# Input to command shutdown
-UART_TX_PIN = 14 	# Used to detect OS running 
+ACTIVE_PIN = 17 	# Used to detect OS running 
 
 
 class RaspberryPiFirmware:
@@ -36,6 +37,10 @@ class RaspberryPiFirmware:
 		
 		GPIO.setmode(GPIO.BCM)
 		GPIO.setup(SHUT_OFF_PIN, GPIO.IN)
+		GPIO.setup(ACTIVE_PIN, GPIO.OUT)
+		
+		# Set active as soon as script starts
+		GPIO.output(ACTIVE_PIN, 1) 
 
 	def _get_ip_address(self):
 		ip_address = '';
@@ -104,8 +109,21 @@ class RaspberryPiFirmware:
 			# Display image.
 			self._disp.image(self._image)
 			self._disp.display()
+			
+			time.sleep(SHUTDOWN_DISPLAY_TIME)
+			
+			# Draw a black filled box to clear screen
+			self._draw.rectangle((0,0,self._width,self._height), outline=0, fill=0)
+			
+			# Display image.
+			self._disp.image(self._image)
+			self._disp.display()
+			
 		except:
 			pass
+			
+		# Acknowledge shutting off Pi
+		GPIO.output(ACTIVE_PIN, 0)
 		
 		# Command PI to shutdown
 		call("sudo shutdown now", shell=True)
