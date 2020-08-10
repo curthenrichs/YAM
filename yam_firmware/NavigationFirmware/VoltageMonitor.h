@@ -19,12 +19,12 @@
 //                      Constants and Macro Definitions
 //==============================================================================
 
-enum State {
+typedef enum PowerState {
   POWER_GOOD,
   POWER_LOW,
   POWER_EMERGENCY,
   ESTOP_ACTIVE
-};
+} PowerState_e;
 
 //==============================================================================
 //                             Class Declaration
@@ -57,7 +57,7 @@ class VoltageMonitor {
 
     int getRaw(void);
 
-    enum State getState(void);
+    PowerState_e getState(void);
 
     void update(void);
 };

@@ -66,7 +66,7 @@ bool drive_cartesian(float x, float y, bool invert = true);
 * @param invert (optional) inverts a motor to allow for correct hardware movement
 * @return true if had to clamp input values down to defined range else false
 */
-bool drive_differential(float l, float r,bool invert = true);
+bool drive_differential(float l, float r, bool invert = true);
 /**
 * Signals a hard stop which cuts the PWM wave to zero thereby signaling the
 * motorcontrollers that the signal has ended.

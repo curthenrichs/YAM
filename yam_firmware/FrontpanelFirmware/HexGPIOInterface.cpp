@@ -73,15 +73,15 @@ void HexGPIOInterface::begin(void) {
   // configure ports as output
   Wire.beginTransmission(I2C_GPIO_ADDRESS);
   Wire.write(CFG_P0_CMD);
-  Wire.write(0x00)
-  Wire.write(0x00)
+  Wire.write(0x00);
+  Wire.write(0x00);
   Wire.endTransmission();
 
   // set pin values for character
   Wire.beginTransmission(I2C_GPIO_ADDRESS);
   Wire.write(OUT_P0_CMD);
-  Wire.write(0x00)
-  Wire.write(0x00)
+  Wire.write(0x00);
+  Wire.write(0x00);
   Wire.endTransmission();
 }
 

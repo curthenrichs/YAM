@@ -18,6 +18,8 @@
 //                           Private Attributes
 //==============================================================================
 
+static RaspberryPiPowerInterface piPowerInterface(PI_RUN_PIN, PI_HALT_PIN, PI_ACTIVE_PIN, POWER_BUTTON_PIN);
+
 //==============================================================================
 //                        Private Function Prototypes
 //==============================================================================
@@ -30,17 +32,17 @@
  * Main intialization will setup the wifi connection and web server
  */
 void setup(void) {
-#if DEBUGGING_MODE
-  DEBUG_SERIAL.begin(DEBUG_SERIAL_BAUD);
-  DEBUG_SERIAL.println("Starting Serial Debugger");
-#endif
+  //Serial.begin(9600);
+
+  piPowerInterface.begin();
 }
 
 /**
  *
  */
 void loop(void) {
-
+  piPowerInterface.update();
+  delay(100);
 }
 
 //==============================================================================
