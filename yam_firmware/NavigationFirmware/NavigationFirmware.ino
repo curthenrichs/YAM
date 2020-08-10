@@ -23,9 +23,6 @@
  *                     machine using current ultrasonic values
  */
 
-// TODO uncomment and test state update code
-// TODO write wallbanger
-
 //==============================================================================
 //                               Libraries
 //==============================================================================
