@@ -11,3 +11,8 @@ forked from (https://github.com/wolfeidau/ros-mpu9250-node)
 
 For simple testing:
 sudo pip install FaBo9Axis_MPU9250
+
+
+## VIO
+https://github.com/uzh-rpg/rpg_svo
+https://github.com/uzh-rpg/rpg_svo/wiki/Installation:-General-for-ARM-processors
