@@ -1,0 +1,179 @@
+<?xml version="1.0"?>
+<robot name="yam">
+
+  <material name="black">
+    <color rgba="0 0 0 1"/>
+  </material>
+  <material name="white">
+    <color rgba="1 1 1 1"/>
+  </material>
+
+  <!-- Base -->
+
+  <link name="base_link"></link>
+
+  <link name="yam_body_link">
+    <visual>
+      <geometry>
+        <mesh filename="package://yam_description/meshes/yam_body.stl"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://yam_description/meshes/yam_body.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="body_fixed_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="yam_body_link"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+  <!-- Drivetrain -->
+
+  <link name="right_caster_wheel_link">
+    <visual>
+      <geometry>
+        <cylinder length="0.1" radius="0.035"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+  <joint name="right_caster_wheel_fixed_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="right_caster_wheel_link"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+
+  <link name="left_caster_wheel_link">
+    <visual>
+      <geometry>
+        <cylinder length="0.1" radius="0.035"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+  <joint name="left_caster_wheel_fixed_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="left_caster_wheel_link"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+
+  <link name="right_drive_wheel_link">
+    <visual>
+      <geometry>
+        <cylinder length="0.1" radius="0.035"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+  <joint name="right_drive_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="right_drive_wheel_link"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <link name="left_drive_wheel_link">
+    <visual>
+      <geometry>
+        <cylinder length="0.1" radius="0.035"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+  <joint name="left_drive_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="left_drive_wheel_link"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <!-- Sensors -->
+
+  <link name="camera_link">
+    <visual>
+      <geometry>
+        <mesh filename="package://yam_description/meshes/yam_camera.stl"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://yam_description/meshes/yam_camera.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="camera_fixed_joint" type="fixed">
+    <parent link="yam_body_link"/>
+    <child link="camera_link"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+  <link name="front_base_sensors_link"></link>
+  <joint name="" type="fixed">
+    <parent link="base_link"/>
+    <child link="front_base_sensors_link"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+  <link name="left_ultrasonic_link">
+    <visual>
+      <geometry>
+        <mesh filename="package://yam_description/meshes/ultrasonic.stl"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://yam_description/meshes/ultrasonic.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="left_ultrasonic_fixed_joint" type="fixed">
+    <parent link="front_base_sensors_link"/>
+    <child link="left_ultrasonic_link"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+  <link name="center_ultrasonic_link">
+    <visual>
+      <geometry>
+        <mesh filename="package://yam_description/meshes/ultrasonic.stl"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://yam_description/meshes/ultrasonic.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="left_ultrasonic_fixed_joint" type="fixed">
+    <parent link="front_base_sensors_link"/>
+    <child link="center_ultrasonic_link"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+  <link name="right_ultrasonic_link">
+    <visual>
+      <geometry>
+        <mesh filename="package://yam_description/meshes/ultrasonic.stl"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://yam_description/meshes/ultrasonic.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="left_ultrasonic_fixed_joint" type="fixed">
+    <parent link="front_base_sensors_link"/>
+    <child link="right_ultrasonic_link"/>
+    <origin xyz="0 0 0"/>
+  </joint>
+
+</robot>
