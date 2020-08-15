@@ -12,6 +12,6 @@ class FrontpanelFirmwareDriver:
 if __name__ == "__main__":
 	rospy.init_node("frontpanel_firmware_driver")
 
-	node = NavigationFirmwareDriver()
+	node = FrontpanelFirmwareDriver()
 	
 	rospy.spin()
