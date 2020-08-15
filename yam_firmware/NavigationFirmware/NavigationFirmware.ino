@@ -1,4 +1,4 @@
-/*
+/**
  * NavigationFirmware
  * @author Curt Henrichs
  * @date 6-22-20
@@ -23,9 +23,6 @@
  *                     machine using current ultrasonic values
  */
 
- // TODO tune watchdog
- // TODO tune wallbanger
-
 //==============================================================================
 //                               Libraries
 //==============================================================================
@@ -36,14 +33,13 @@
 #include "MotorController.h"
 #include "UltrasonicSensor.h"
 #include "Watchdog.h"
+#include "Autonomous.h"
 
 #include <elapsedMillis.h>
 
 #define USE_USBCON
 #include <ros.h>
-#include <ros/time.h>
 #include <std_msgs/Bool.h>
-#include <sensor_msgs/Range.h>
 #include <yam_msgs/RobotState.h>
 #include <yam_msgs/Ultrasonics.h>
 #include <yam_msgs/CartesianDrive.h>
@@ -53,11 +49,9 @@
 //                         Constants and Macro Declaration
 //==============================================================================
 
-#define WATCHDOG_TIMER_TIME (50)
-#define ULTRASONIC_TIMER_TIME (10)
-#define ROBOT_STATE_TIME (250)
-#define ULTRASONIC_STATE_TIME (100)
-#define ROS_SUB_UPDATE_TIME (100)
+#define WATCHDOG_TIMER_TIME      (50)
+#define SENSOR_PUBLISH_TIME      (500)
+#define AUTON_UPDATE_TIME        (100)
 
 //==============================================================================
 //                      Private Function Prototypes
@@ -77,10 +71,8 @@ static bool _autonomous_mode = false;
 static bool _drivetrain_active = false;
 
 static elapsedMillis _watchdog_timeout_timer;
-static elapsedMillis _ultrasonic_sensor_timer;
-static elapsedMillis _robot_state_timer;
-static elapsedMillis _ultrasonic_state_timer;
-static elapsedMillis _ros_sub_update_timer;
+static elapsedMillis _sensor_publish_timer;
+static elapsedMillis _auton_update_timer;
 
 static MotorController rightMotor(MOTOR_0_DIR_PIN,MOTOR_0_PWM_PIN);
 static MotorController leftMotor(MOTOR_1_DIR_PIN,MOTOR_1_PWM_PIN);
@@ -121,11 +113,12 @@ void setup(void) {
 
   /* Initialize Hardware */
   
-  watchdog_begin();
+  //watchdog_begin();
   leftMotor.begin();
   rightMotor.begin();
   drive_init(&leftMotor,&rightMotor);
   drive_hard_stop();
+  auton_begin();
 
   /* Initialize ROS */
 
@@ -137,18 +130,15 @@ void setup(void) {
   nodeHandler.subscribe(autonomous_mode_sub);
   nodeHandler.subscribe(cartesian_drive_sub);
   nodeHandler.subscribe(differential_drive_sub);
-  
+
   ultrasonics_msg.field_of_view = 0.5236f;
   ultrasonics_msg.min_range = 0.03f;
   ultrasonics_msg.max_range = 4.0f;
   
   /* Initialize Timers */
-  
   _watchdog_timeout_timer = 0;
-  _ultrasonic_sensor_timer = 0;
-  _robot_state_timer = 0;
-  _ultrasonic_state_timer = 0;
-  _ros_sub_update_timer = 0;
+  _sensor_publish_timer = 0;
+  _auton_update_timer = 0;
 }
 
 /**
@@ -169,38 +159,31 @@ void loop(void) {
     }
   }
 
-  // scan ultrasonics
-  if (_ultrasonic_sensor_timer >= ULTRASONIC_TIMER_TIME) {
-    _ultrasonic_sensor_timer -= ULTRASONIC_TIMER_TIME;
+  /* Update sensors */
+  if (_sensor_publish_timer >= SENSOR_PUBLISH_TIME) {
+    _sensor_publish_timer = 0;
 
-    for (int i=0; i<3; i++) {
-      ultrasonicSensors[i].update();
+    // Ultrasonic Sensors
+    if (!_autonomous_mode) {
+      ultrasonicSensors[0].update();
+      ultrasonicSensors[1].update();
+      ultrasonicSensors[2].update();
     }
-  }
+    
+    ultrasonics_msg.left_range = ultrasonicSensors[0].getDistance();
+    ultrasonics_msg.center_range = ultrasonicSensors[1].getDistance();
+    ultrasonics_msg.right_range = ultrasonicSensors[2].getDistance();
+    ultrasonics_pub.publish(&ultrasonics_msg);
 
-  // publish robot state
-  if (_robot_state_timer  >= ROBOT_STATE_TIME) {
-    _robot_state_timer -= ROBOT_STATE_TIME;
-
+    // Robot State
     voltageMonitor.update();
 
     robotState_msg.in_autonomous_mode = _autonomous_mode;
     robotState_msg.watchdog_tripped = !_drivetrain_active;
     robotState_msg.voltage = voltageMonitor.getVoltage();
     robotState_msg.robot_power_state = voltageMonitor.getState();
-
+    robotState_msg.auton_state = auton_get_state();
     robot_state_pub.publish(&robotState_msg);
-  }
-
-  // publish ultrasonics state
-  if (_ultrasonic_state_timer >= ULTRASONIC_STATE_TIME) {
-    _ultrasonic_state_timer -= ULTRASONIC_STATE_TIME;
-
-    ultrasonics_msg.left_range = ultrasonicSensors[0].getDistance();
-    ultrasonics_msg.center_range = ultrasonicSensors[1].getDistance();
-    ultrasonics_msg.right_range = ultrasonicSensors[2].getDistance();
-
-    ultrasonics_pub.publish(&ultrasonics_msg);
   }
 
   // Autonomous mode
@@ -208,13 +191,8 @@ void loop(void) {
     wallBanger();
   }
 
-  if (_ros_sub_update_timer >= ROS_SUB_UPDATE_TIME) {
-	  _ros_sub_update_timer -= ROS_SUB_UPDATE_TIME;
-	
-	  nodeHandler.spinOnce();
-  }
-  
-  delay(5);
+  nodeHandler.spinOnce();
+  delay(10);
 }
 
 //==============================================================================
@@ -223,30 +201,23 @@ void loop(void) {
 
 static void wallBanger(void) {
 
-  if (ultrasonicSensors[0].getDistance() < 20 || ultrasonicSensors[1].getDistance() < 20 || ultrasonicSensors[2].getDistance() < 20) {
+  if (_auton_update_timer >= AUTON_UPDATE_TIME) {
+    _auton_update_timer = 0;
 
-    // Backup
-    if (ultrasonicSensors[0].getDistance() < 10 || ultrasonicSensors[1].getDistance() < 10 || ultrasonicSensors[2].getDistance() < 10) {
-      drive_cartesian(0,-50);
-      delay(250);
-    }
+    // Get Sensor State
+    ultrasonicSensors[0].update();
+    ultrasonicSensors[1].update();
+    ultrasonicSensors[2].update();
 
-    // Decide direction
-    if (ultrasonicSensors[1].getDistance() > 50) {
-      if (ultrasonicSensors[0].getDistance() > ultrasonicSensors[2].getDistance()) {
-        drive_cartesian(50,50);
-      } else {
-        drive_cartesian(-50,50);
-      }
-    } else {
-      if (ultrasonicSensors[0].getDistance() > ultrasonicSensors[2].getDistance()) {
-        drive_cartesian(50,-10);
-      } else {
-        drive_cartesian(-50,-10);
-      }
-    }
-  } else {
-    drive_cartesian(0,50);
+    // Run state machine
+    auton_update(ultrasonicSensors[0].getDistance(),
+                 ultrasonicSensors[1].getDistance(),
+                 ultrasonicSensors[2].getDistance());
+
+    // Send motor commands
+    int l = auton_left_motor();
+    int r = auton_right_motor();
+    drive_differential(l, r, false);
   }
 }
 
@@ -258,6 +229,8 @@ static void heartbeat_cb(const std_msgs::Bool &msg) {
 
 static void autonomous_mode_cb(const std_msgs::Bool &msg) {
   _autonomous_mode = msg.data;
+  _auton_update_timer = 0;
+  auton_begin();
 }
 
 static void cartesian_drive_cb(const yam_msgs::CartesianDrive &msg) {
@@ -268,6 +241,6 @@ static void cartesian_drive_cb(const yam_msgs::CartesianDrive &msg) {
 
 static void differential_drive_cb(const yam_msgs::DifferentialDrive &msg) {
   if (!_autonomous_mode && _drivetrain_active) {
-    drive_differential(msg.left,msg.right);
+    drive_differential(msg.left, msg.right, false);
   }
 }

@@ -52,7 +52,7 @@ int VoltageMonitor::getRaw(void) {
   return _value;
 }
 
-enum State VoltageMonitor::getState(void) {
+PowerState_e VoltageMonitor::getState(void) {
   float voltage = getVoltage();
 
   if (voltage > POWER_GOOD_VOLTAGE) {

@@ -22,7 +22,7 @@
 /**
  * Average time between messages must be below this in order to not lockout motors
  */
-#define WATCHDOG_TIME_THRESHOLD 500
+#define WATCHDOG_TIME_THRESHOLD 1000
 
 //==============================================================================
 //                           Private Attributes

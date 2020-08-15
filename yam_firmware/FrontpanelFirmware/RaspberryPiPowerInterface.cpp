@@ -24,8 +24,8 @@
 //                      Constants and Macro Definitions
 //==============================================================================
 
-#define ACTIVE_DEBOUNCE_INTERVAL  (5)
-#define BUTTON_DEBOUNCE_INTERVAL  (5)
+#define ACTIVE_DEBOUNCE_INTERVAL  (25)
+#define BUTTON_DEBOUNCE_INTERVAL  (25)
 
 //==============================================================================
 //                             Class Implemenation
@@ -40,8 +40,8 @@ RaspberryPiPowerInterface::RaspberryPiPowerInterface(byte runPin, byte haltPin,
   _activePin = activePin;
   _buttonPin = buttonPin;
 
-  _activeDebounce = Bounce();
-  _buttonDebounce = Bounce();
+  _activeDebounce = Bounce(); // Active Low
+  _buttonDebounce = Bounce(); // Active High
 }
 
 void RaspberryPiPowerInterface::begin(void) {
@@ -64,17 +64,47 @@ void RaspberryPiPowerInterface::update(void) {
   _buttonDebounce.update();
 
   if (_isOn) {
-    if (_buttonDebounce.rose() || _activeDebounce.read() == LOW) {
+    //Serial.println("On");
+    if (_buttonDebounce.rose() || _activeDebounce.read() == HIGH) { // Then stop
+      //Serial.print("Stopping ");
+
       _isOn = false;
       digitalWrite(_haltPin,HIGH);
-      while (!_activeDebounce.fell()) { /* Loop until condition */ }
+      while (_activeDebounce.read() == LOW) {
+        /* Loop until condition - Okay to block since ROS-Comm not needed */
+        //Serial.print(".");
+        _activeDebounce.update();
+        _buttonDebounce.update();
+        delay(10);
+      }
+
+      delay(30000); // Wait 30s before pulling the plug
+      
       digitalWrite(_runPin,LOW);
+      //Serial.println(" Done");
     }
   } else {
-    if (_buttonDebounce.rose() || _activeDebounce.read() == HIGH) {
+    //Serial.println("Off");
+    if (_buttonDebounce.rose() || _activeDebounce.read() == LOW) { // Then start
+      //Serial.print("Starting ");
+
       _isOn = true;
       digitalWrite(_haltPin,LOW);
       digitalWrite(_runPin,HIGH);
+
+      // Delay until stable On
+      while (_activeDebounce.read() == HIGH) {
+        /* Loop until condition - Okay to block since ROS-Comm not needed */
+        _activeDebounce.update();
+        _buttonDebounce.update();
+        delay(10);
+      }
+
+      //Serial.println(" Done");
     }
   }
+}
+
+bool RaspberryPiPowerInterface::isOn(void) {
+  return _isOn;
 }

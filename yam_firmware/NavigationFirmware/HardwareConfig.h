@@ -33,7 +33,7 @@
 //                        Constant and Macro Definition
 //==============================================================================
 
-#define VOLTAGE_VIN_SLOPE                   (12.5f/1023)
+#define VOLTAGE_VIN_SLOPE                   (12.6f/1023)
 #define VOLTAGE_VIN_INTERCEPT               (0)
 
 #endif
