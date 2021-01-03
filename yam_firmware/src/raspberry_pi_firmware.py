@@ -43,11 +43,7 @@ class RaspberryPiFirmware:
 		GPIO.output(ACTIVE_PIN, 1) 
 
 	def _get_ip_address(self):
-		ip_address = '';
-		s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		s.connect(("8.8.8.8",80))
-		ip_address = s.getsockname()[0]
-		s.close()
+		ip_address = socket.gethostbyname(socket.gethostname()) 
 		return ip_address
 		
 	def display_setup(self):
