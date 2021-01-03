@@ -52,6 +52,7 @@ Then install the following ROS packages
 
 Optionally install,
 - [ROS Joystick Drivers](https://github.com/ros-drivers/joystick_drivers/tree/main/joy) via `sudo apt install ros-melodic-joystick-drivers` ~ Used for manual control with an Xbox One controller.
+- [Joy]() via sudo apt install ros-melodic-joy ~ Joystick interface
 - [FaBo9Axis_MPU9250](https://github.com/FaBoPlatform/FaBo9AXIS-MPU9250-Python) via pip install FaBo9Axis_MPU9250 ~ For testing the IMU in a script.
 
 VIO
