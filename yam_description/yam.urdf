@@ -211,6 +211,8 @@
     <child link="left_ultrasonic_link"/>
     <origin rpy="0 0 1.0" xyz="0.13 0.174 0.01"/>
   </joint>
+  
+  <!-- TODO add left_infrared_link and right_infrared_link -->
 
   <!-- TODO fix imu_link name and update orientation when installed -->
   <link name="imu_link">

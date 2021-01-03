@@ -3,44 +3,23 @@
 import time
 import socket
 import Adafruit_SSD1306
-import RPi.GPIO as GPIO
 
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 
-from subprocess import call
-
 
 DEFAULT_LOOP_TIMESTEP = 0.25
-DEFAULT_FILTER_LENGTH = 4
-SHUTDOWN_DISPLAY_TIME = 2
-
-# Raspberry Pi pin configuration:
-RST_PIN = 24 		# Unused - but would reset the OLED interface
-I2C_SDA_PIN = 2 	# OLED Comm
-I2C_SCL_PIN = 3 	# OLED Comm
-SHUT_OFF_PIN = 4 	# Input to command shutdown
-ACTIVE_PIN = 17 	# Used to detect OS running 
 
 
-class RaspberryPiFirmware:
+class JetsonNanoFirmware:
 	
-	def __init__(self, loop_time_step=DEFAULT_LOOP_TIMESTEP, filter_length=DEFAULT_FILTER_LENGTH):	
-		self._loop_time_step = loop_time_step
-		self._shutoff_filter = [0]*filter_length
+	def __init__(self, loop_time_step=DEFAULT_LOOP_TIMESTEP):	
 		
 		self._current_ip_address = self._get_ip_address()
 		
 		self.display_setup()
 		self.print_ip_address(self._current_ip_address)
-		
-		GPIO.setmode(GPIO.BCM)
-		GPIO.setup(SHUT_OFF_PIN, GPIO.IN)
-		GPIO.setup(ACTIVE_PIN, GPIO.OUT)
-		
-		# Set active as soon as script starts
-		GPIO.output(ACTIVE_PIN, 1) 
 
 	def _get_ip_address(self):
 		ip_address = socket.gethostbyname(socket.gethostname()) 
@@ -48,7 +27,7 @@ class RaspberryPiFirmware:
 		
 	def display_setup(self):
 		# 128x32 display with hardware I2C:
-		self._disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST_PIN)
+		self._disp = Adafruit_SSD1306.SSD1306_128_32(rst=None, i2c_bus=1, gpio=1) # setting gpio to 1 is hack to avoid platform detection
 		
 		try:
 			# Initialize library.
@@ -93,60 +72,22 @@ class RaspberryPiFirmware:
 			self._disp.display()
 		except:
 			pass
-		
-	def shutoff_command(self):
-		try:
-			# Draw a black filled box to clear previous text
-			self._draw.rectangle((0,self._height/2,self._width,self._height), outline=0, fill=0)
-			
-			# Write Shutdown
-			self._draw.text((self._padding, self._height/2 + self._padding), 'Shutting Down',  font=self._font, fill=255)
-			
-			# Display image.
-			self._disp.image(self._image)
-			self._disp.display()
-			
-			time.sleep(SHUTDOWN_DISPLAY_TIME)
-			
-			# Draw a black filled box to clear screen
-			self._draw.rectangle((0,0,self._width,self._height), outline=0, fill=0)
-			
-			# Display image.
-			self._disp.image(self._image)
-			self._disp.display()
-			
-		except:
-			pass
-			
-		# Acknowledge shutting off Pi
-		GPIO.output(ACTIVE_PIN, 0)
-		
-		# Command PI to shutdown
-		call("sudo shutdown now", shell=True)
-		
+	
 	def spin(self):
 		try:  
 			while True: 
-				time.sleep(self._loop_time_step) 
-				
-				# Read shutoff pin, add to buffer and see if should shut off
-				self._shutoff_filter.append(1 if GPIO.input(SHUT_OFF_PIN) else 0)
-				self._shutoff_filter.pop(0)
-				if (sum(self._shutoff_filter) / len(self._shutoff_filter)) >= 0.75:
-					self.shutoff_command()
-					break
+				time.sleep(self._loop_time_step)
 				
 				# Check IP address
 				ip_address = self._get_ip_address()
 				if ip_address != self._current_ip_address:
 					self._current_ip_address = ip_address
 					self.print_ip_address(self._current_ip_address)
-
 		except:
-			GPIO.cleanup() 
+			pass
 
 
 if __name__ == "__main__":
-	node = RaspberryPiFirmware()
+	node = JetsonNanoFirmware()
 	
 	node.spin()
