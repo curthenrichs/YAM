@@ -1,8 +1,6 @@
 <launch>
 
-	<node name="xbox_joystick" pkg="joy" type="joy_node">
-		<param name="dev_name" value="Xbox Wireless Controller"/>
-	</node>
+	<node name="xbox_joystick" pkg="joy" type="joy_node"/>
 	
 	<node name="joystick_test_ros" pkg="yam_core" type="joystick_test_ros.py" output="screen"/>
 	

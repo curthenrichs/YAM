@@ -4,9 +4,11 @@
 
   <arg name="nav_port" default="/dev/ttyACM0"/>
   <arg name="nav_baud" default="57600"/>
+  <arg name="launch_nav" default="true"/>
 
   <arg name="fp_port" default="/dev/ttyACM1"/>
   <arg name="fp_baud" default="57600"/>
+  <arg name="launch_fp" default="false"/>
   
   <!-- IMU Node -->
   <node name="imu" pkg="mpu9250_9dof_imu" type="imuout"/>
@@ -17,14 +19,14 @@
   </node>
   
   <!-- Navigation Firmware -->
-  <include file="$(find yam_firmware)/launch/navigation.launch">
+  <include if="$(arg launch_nav)" file="$(find yam_firmware)/launch/navigation.launch">
 	<arg name="port" value="$(arg nav_port)"/>
 	<arg name="baud" value="$(arg nav_baud)"/>
 	<arg name="run_heartbeat" value="false"/>
   </include>
   
   <!-- Frontpanel Firmware -->
-  <include file="$(find yam_firmware)/launch/frontpanel.launch">
+  <include if="$(arg launch_fp)" file="$(find yam_firmware)/launch/frontpanel.launch">
 	<arg name="port" value="$(arg fp_port)"/>
 	<arg name="baud" value="$(arg fp_baud)"/>
 	<arg name="run_heartbeat" value="false"/>
