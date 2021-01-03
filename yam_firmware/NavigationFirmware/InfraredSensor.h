@@ -27,6 +27,8 @@ class InfraredSensor{
     // pin connected to sensor IO line
     byte _pin;
     float _value;
+    unsigned long _lastUpdateMicros;
+    byte _numBurstSamples = 8;
 
   public:
     /**
@@ -46,6 +48,11 @@ class InfraredSensor{
      * @return float with a distance in meters
      */
     float update(void);
+    /**
+     * Change number of burst samples
+     * @param samples is number of samples to take per update
+     */
+     void setNumBurstSamples(byte samples);
 };
 
 #endif
