@@ -26,7 +26,7 @@
 UltrasonicSensor::UltrasonicSensor(byte pin){
 	//member initialization
 	_pin = pin;
-	_value = 0;
+	_value = -1;
 
 	//configure hardware
 	pinMode(_pin, OUTPUT);

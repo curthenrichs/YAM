@@ -25,6 +25,7 @@
  */
 #define LEFT_STOPPING_DISTANCE           0.30f
 #define CENTER_STOPPING_DISTANCE         0.30f
+#define SHARP_STOPPING_STOPPING_DISTANCE 0.20f
 #define RIGHT_STOPPING_DISTANCE          0.30f
 #define MIN_TURN_RADIUS                  0.13f
 
@@ -84,9 +85,11 @@ static int _rightMotor;
  * @param ul is left ultrasonic sensor reading
  * @param uc is center ultrasonic sensor reading
  * @param ur is right ultrasonic sensor reading
+ * @param sl is left sharp ir sensor reading
+ * @param sr is right sharp ir sensor reading
  * @return next state (MOVE_FWD or WHICH_WAY_SLCT)
  */
-static inline AutonState_e _forward(float ul, float uc, float ur);
+static inline AutonState_e _forward(float ul, float uc, float ur, float sl, float sr);
 
 /**
  * State MOVE_BWD function moves Bubbles backward for a predefined amount of
@@ -101,9 +104,11 @@ static inline AutonState_e _backward();
  * @param ul is left ultrasonic sensor reading
  * @param uc is center ultrasonic sensor reading
  * @param ur is right ultrasonic sensor reading
+ * @param sl is left sharp ir sensor reading
+ * @param sr is right sharp ir sensor reading
  * @return next state (MOVE_RIGHT, MOVE_FWD, or WHICH_WAY_SLCT)
  */
-static inline AutonState_e _left(float ul, float uc, float ur);
+static inline AutonState_e _left(float ul, float uc, float ur, float sl, float sr);
 
 /**
  * State MOVE_RIGHT function moves Bubbles right for a predefined amount of
@@ -111,9 +116,11 @@ static inline AutonState_e _left(float ul, float uc, float ur);
  * @param ul is left ultrasonic sensor reading
  * @param uc is center ultrasonic sensor reading
  * @param ur is right ultrasonic sensor reading
+ * @param sl is left sharp ir sensor reading
+ * @param sr is right sharp ir sensor reading
  * @return next state (MOVE_RIGHT, MOVE_FWD, or WHICH_WAY_SLCT)
  */
-static inline AutonState_e _right(float ul, float uc, float ur);
+static inline AutonState_e _right(float ul, float uc, float ur, float sl, float sr);
 
 /**
  * State WHICH_WAY_SLCT function to handle the selection of which direction to
@@ -124,9 +131,11 @@ static inline AutonState_e _right(float ul, float uc, float ur);
  * @param ul is left ultrasonic sensor reading
  * @param uc is center ultrasonic sensor reading
  * @param ur is right ultrasonic sensor reading
+ * @param sl is left sharp ir sensor reading
+ * @param sr is right sharp ir sensor reading
  * @return next state (MOVE_LEFT, MOVE_RIGHT, MOVE_BWD)
  */
-static inline AutonState_e _whichWay(float ul, float uc, float ur);
+static inline AutonState_e _whichWay(float ul, float uc, float ur, float sl, float sr);
 
 //==============================================================================
 //                      Public Function Implementation
@@ -152,24 +161,26 @@ void auton_begin(void) {
  * @param ul is left ultrasonic sensor reading
  * @param uc is center ultrasonic sensor reading
  * @param ur is right ultrasonic sensor reading
+ * @param sl is left sharp ir sensor reading
+ * @param sr is right sharp ir sensor reading
  */
-void auton_update(float ul, float uc, float ur) {
+void auton_update(float ul, float uc, float ur, float sl, float sr) {
   // Run current state and update for next update call
   switch(_state){
     case MOVE_FWD:
-      _state = _forward(ul, uc, ur);
+      _state = _forward(ul, uc, ur, sl, sr);
       break;
     case MOVE_BWD:
       _state = _backward();
       break;
     case MOVE_LEFT:
-      _state = _left(ul, uc, ur);
+      _state = _left(ul, uc, ur, sl, sr);
       break;
     case MOVE_RIGHT:
-      _state = _right(ul, uc, ur);
+      _state = _right(ul, uc, ur, sl, sr);
       break;
     case WHICH_WAY_SLCT:
-      _state = _whichWay(ul, uc, ur);
+      _state = _whichWay(ul, uc, ur, sl, sr);
       break;
     case ERROR:
     default:
@@ -209,16 +220,18 @@ AutonState_e auton_get_state(void) {
  * @param ul is left ultrasonic sensor reading
  * @param uc is center ultrasonic sensor reading
  * @param ur is right ultrasonic sensor reading
+ * @param sl is left sharp ir sensor reading
+ * @param sr is right sharp ir sensor reading
  * @return next state (MOVE_FWD or WHICH_WAY_SLCT)
  */
-static inline AutonState_e _forward(float ul, float uc, float ur){
+static inline AutonState_e _forward(float ul, float uc, float ur, float sl, float sr){
   bool moveForward = true;
   AutonState_e retVal;
   
   if(_delayTimer >= FORWARD_TIME) {
     _delayTimer = 0;
     
-    if(uc < CENTER_STOPPING_DISTANCE || ul < LEFT_STOPPING_DISTANCE || ur < RIGHT_STOPPING_DISTANCE){
+    if(uc < CENTER_STOPPING_DISTANCE || ul < LEFT_STOPPING_DISTANCE || ur < RIGHT_STOPPING_DISTANCE || sl < SHARP_STOPPING_STOPPING_DISTANCE || sr < SHARP_STOPPING_STOPPING_DISTANCE){
       moveForward = false;
 
       //stop the robot going to crash
@@ -273,15 +286,17 @@ static inline AutonState_e _backward(){
  * @param ul is left ultrasonic sensor reading
  * @param uc is center ultrasonic sensor reading
  * @param ur is right ultrasonic sensor reading
+ * @param sl is left sharp ir sensor reading
+ * @param sr is right sharp ir sensor reading
  * @return next state (MOVE_RIGHT, MOVE_FWD, or WHICH_WAY_SLCT)
  */
-static inline AutonState_e _left(float ul, float uc, float ur){
+static inline AutonState_e _left(float ul, float uc, float ur, float sl, float sr){
   AutonState_e retVal;
   
   if(_delayTimer >= MOVING_LEFT_TIME){
     _delayTimer = 0;
 
-    if(uc < CENTER_STOPPING_DISTANCE || ul < LEFT_STOPPING_DISTANCE || ur < RIGHT_STOPPING_DISTANCE){
+    if(uc < CENTER_STOPPING_DISTANCE || ul < LEFT_STOPPING_DISTANCE || ur < RIGHT_STOPPING_DISTANCE || sl < SHARP_STOPPING_STOPPING_DISTANCE || sr < SHARP_STOPPING_STOPPING_DISTANCE){
       
       //stop the robot going to crash
       _leftMotor = 0;
@@ -311,15 +326,17 @@ static inline AutonState_e _left(float ul, float uc, float ur){
  * @param ul is left ultrasonic sensor reading
  * @param uc is center ultrasonic sensor reading
  * @param ur is right ultrasonic sensor reading
+ * @param sl is left sharp ir sensor reading
+ * @param sr is right sharp ir sensor reading
  * @return next state (MOVE_RIGHT, MOVE_FWD, or WHICH_WAY_SLCT)
  */
-static inline AutonState_e _right(float ul, float uc, float ur){
+static inline AutonState_e _right(float ul, float uc, float ur, float sl, float sr){
   AutonState_e retVal;
   
   if(_delayTimer >= MOVING_RIGHT_TIME){
     _delayTimer = 0;
 
-    if(uc < CENTER_STOPPING_DISTANCE || ul < LEFT_STOPPING_DISTANCE || ur < RIGHT_STOPPING_DISTANCE){
+    if(uc < CENTER_STOPPING_DISTANCE || ul < LEFT_STOPPING_DISTANCE || ur < RIGHT_STOPPING_DISTANCE || sl < SHARP_STOPPING_STOPPING_DISTANCE || sr < SHARP_STOPPING_STOPPING_DISTANCE){
       
       //stop the robot going to crash
       _leftMotor = 0;
@@ -352,9 +369,11 @@ static inline AutonState_e _right(float ul, float uc, float ur){
  * @param ul is left ultrasonic sensor reading
  * @param uc is center ultrasonic sensor reading
  * @param ur is right ultrasonic sensor reading
+ * @param sl is left sharp ir sensor reading
+ * @param sr is right sharp ir sensor reading
  * @return next state (MOVE_LEFT, MOVE_RIGHT, MOVE_BWD)
  */
-static inline AutonState_e _whichWay(float ul, float uc, float ur){
+static inline AutonState_e _whichWay(float ul, float uc, float ur, float sl, float sr){
   AutonState_e retVal;
 
   if (ai.rightCount > MAX_RIGHT_COUNT || ai.leftCount > MAX_LEFT_COUNT) {
@@ -365,7 +384,7 @@ static inline AutonState_e _whichWay(float ul, float uc, float ur){
     
   } else {
     
-    if(uc < MIN_TURN_RADIUS){
+    if(uc < MIN_TURN_RADIUS || sl < MIN_TURN_RADIUS || sr < MIN_TURN_RADIUS){
       
       retVal = MOVE_BWD;
     }else if(ul < MIN_TURN_RADIUS && ur < MIN_TURN_RADIUS){

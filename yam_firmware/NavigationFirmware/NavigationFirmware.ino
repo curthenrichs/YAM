@@ -32,6 +32,7 @@
 #include "Drivetrain.h"
 #include "MotorController.h"
 #include "UltrasonicSensor.h"
+#include "InfraredSensor.h"
 #include "Watchdog.h"
 #include "Autonomous.h"
 
@@ -40,6 +41,7 @@
 #define USE_USBCON
 #include <ros.h>
 #include <std_msgs/Bool.h>
+#include <yam_msgs/Infrareds.h>
 #include <yam_msgs/RobotState.h>
 #include <yam_msgs/Ultrasonics.h>
 #include <yam_msgs/CartesianDrive.h>
@@ -83,6 +85,11 @@ static UltrasonicSensor ultrasonicSensors[3] = {
   UltrasonicSensor(UlTRASONIC_2_PIN)
 };
 
+static InfraredSensor infraredSensors[2] = {
+  InfraredSensor(INFRARED_0_PIN),
+  InfraredSensor(INFRARED_1_PIN)
+};
+
 static VoltageMonitor voltageMonitor(VOLTAGE_VIN_PIN,VOLTAGE_VIN_SLOPE,VOLTAGE_VIN_INTERCEPT);
 
 //==============================================================================
@@ -96,6 +103,9 @@ static ros::Publisher robot_state_pub("rs", &robotState_msg);
 
 static yam_msgs::Ultrasonics ultrasonics_msg;
 static ros::Publisher ultrasonics_pub("us", &ultrasonics_msg);
+
+static yam_msgs::Infrareds infrareds_msg;
+static ros::Publisher infrareds_pub("ir", &infrareds_msg);
 
 static ros::Subscriber<std_msgs::Bool> heartbeat_sub("hb", heartbeat_cb);
 static ros::Subscriber<std_msgs::Bool> autonomous_mode_sub("ai", autonomous_mode_cb);
@@ -126,6 +136,7 @@ void setup(void) {
 
   nodeHandler.advertise(robot_state_pub);
   nodeHandler.advertise(ultrasonics_pub);
+  nodeHandler.advertise(infrareds_pub);
   nodeHandler.subscribe(heartbeat_sub);
   nodeHandler.subscribe(autonomous_mode_sub);
   nodeHandler.subscribe(cartesian_drive_sub);
@@ -134,6 +145,10 @@ void setup(void) {
   ultrasonics_msg.field_of_view = 0.5236f;
   ultrasonics_msg.min_range = 0.03f;
   ultrasonics_msg.max_range = 4.0f;
+
+  infrareds_msg.field_of_view = -1; //TODO figure this value out
+  infrareds_msg.min_range = 0.04f;
+  infrareds_msg.max_range = 0.30f;
   
   /* Initialize Timers */
   _watchdog_timeout_timer = 0;
@@ -145,7 +160,7 @@ void setup(void) {
  * Main program loop
  */
 void loop(void) {
-
+  
   // Update watchdog results
   if (_watchdog_timeout_timer >= WATCHDOG_TIMER_TIME) {
     _watchdog_timeout_timer -=  WATCHDOG_TIMER_TIME;
@@ -175,6 +190,16 @@ void loop(void) {
     ultrasonics_msg.right_range = ultrasonicSensors[2].getDistance();
     ultrasonics_pub.publish(&ultrasonics_msg);
 
+    // Infrared Sensors
+    if (!_autonomous_mode) {
+      infraredSensors[0].update();
+      infraredSensors[1].update();
+    }
+
+    infrareds_msg.left_range = infraredSensors[0].getDistance();
+    infrareds_msg.right_range = infraredSensors[1].getDistance();
+    infrareds_pub.publish(&infrareds_msg);
+
     // Robot State
     voltageMonitor.update();
 
@@ -190,7 +215,7 @@ void loop(void) {
   if (_autonomous_mode && _drivetrain_active) {
     wallBanger();
   }
-
+  
   nodeHandler.spinOnce();
   delay(10);
 }
@@ -209,10 +234,15 @@ static void wallBanger(void) {
     ultrasonicSensors[1].update();
     ultrasonicSensors[2].update();
 
+    infraredSensors[0].update();
+    infraredSensors[1].update();
+
     // Run state machine
     auton_update(ultrasonicSensors[0].getDistance(),
                  ultrasonicSensors[1].getDistance(),
-                 ultrasonicSensors[2].getDistance());
+                 ultrasonicSensors[2].getDistance(),
+                 infraredSensors[0].getDistance(),
+                 infraredSensors[1].getDistance());
 
     // Send motor commands
     int l = auton_left_motor();
