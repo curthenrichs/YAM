@@ -53,8 +53,10 @@ void auton_begin(void);
  * @param ul is left ultrasonic sensor reading
  * @param uc is center ultrasonic sensor reading
  * @param ur is right ultrasonic sensor reading
+ * @param sl is left sharp ir sensor reading
+ * @param sr is right sharp ir sensor reading
  */
-void auton_update(float ul, float uc, float ur);
+void auton_update(float ul, float uc, float ur, float sl, float sr);
 
 /**
  * @return Current state control value for left motor
