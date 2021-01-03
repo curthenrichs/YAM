@@ -54,6 +54,7 @@ add_message_files(
   DifferentialDrive.msg
   RobotState.msg
   Ultrasonics.msg
+  Infrareds.msg
 )
 
 ## Generate services in the 'srv' folder

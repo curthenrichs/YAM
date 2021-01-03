@@ -4,7 +4,7 @@ import rospy
 
 from std_msgs.msg import Bool, String
 from sensor_msgs.msg import Range, BatteryState
-from yam_msgs.msg import Ultrasonics, RobotState
+from yam_msgs.msg import Ultrasonics, RobotState, Infrareds
 from yam_msgs.msg import CartesianDrive, DifferentialDrive
 
 
@@ -15,9 +15,12 @@ class NavigationFirmwareDriver:
 		self._hw_cartesian_pub = rospy.Publisher("rosserial/cd",CartesianDrive,queue_size=5)
 		self._hw_differential_pub = rospy.Publisher("rosserial/dd",DifferentialDrive,queue_size=5)
 		
-		self._left_range_pub = rospy.Publisher("range/left",Range,queue_size=5)
-		self._center_range_pub = rospy.Publisher("range/center",Range,queue_size=5)
-		self._right_range_pub = rospy.Publisher("range/right",Range,queue_size=5)
+		self._left_ultra_pub = rospy.Publisher("ultrasonic/left",Range,queue_size=5)
+		self._center_ultra_pub = rospy.Publisher("ultrasonic/center",Range,queue_size=5)
+		self._right_ultra_pub = rospy.Publisher("ultrasonic/right",Range,queue_size=5)
+		
+		self._left_infra_pub = rospy.Publisher("infrared/left",Range,queue_size=5)
+		self._right_infra_pub = rospy.Publisher("infrared/right",Range,queue_size=5)
 		
 		self._battery_pub = rospy.Publisher("battery_state",BatteryState,queue_size=5)
 		self._watchdog_tripped_pub = rospy.Publisher("navigation_firmware/watchdog_tripped",Bool,queue_size=5)
@@ -29,6 +32,7 @@ class NavigationFirmwareDriver:
 		
 		self._set_wallbanger_state_sub = rospy.Subscriber("navigation_firmware/set_wallbanger_state",Bool,self._set_wallbanger_state_cb)
 		self._hw_ultrasonics_sub = rospy.Subscriber("rosserial/us",Ultrasonics,self._hw_ultrasonics_cb)
+		self._hw_infrareds_sub = rospy.Subscriber("rosserial/ir",Infrareds,self._hw_infrareds_cb)
 		self._hw_robot_state_sub = rospy.Subscriber("rosserial/rs",RobotState,self._hw_robot_state_cb)
 
 	def _cartesian_drive_cb(self, msg):
@@ -44,36 +48,60 @@ class NavigationFirmwareDriver:
 		
 		leftMsg = Range()
 		leftMsg.header.stamp = rospy.Time.now()
-		leftMsg.header.frame_id = "left_ultrasonic"
+		leftMsg.header.frame_id = "left_ultrasonic_link"
 		leftMsg.radiation_type = Range.ULTRASOUND
 		leftMsg.field_of_view = msg.field_of_view
 		leftMsg.min_range = msg.min_range
 		leftMsg.max_range = msg.max_range
 		leftMsg.range = msg.left_range
 		
-		self._left_range_pub.publish(leftMsg)
+		self._left_ultra_pub.publish(leftMsg)
 		
 		centerMsg = Range()
 		centerMsg.header.stamp = rospy.Time.now()
-		centerMsg.header.frame_id = "center_ultrasonic"
+		centerMsg.header.frame_id = "center_ultrasonic_link"
 		centerMsg.radiation_type = Range.ULTRASOUND
 		centerMsg.field_of_view = msg.field_of_view
 		centerMsg.min_range = msg.min_range
 		centerMsg.max_range = msg.max_range
 		centerMsg.range = msg.center_range
 		
-		self._center_range_pub.publish(centerMsg)
+		self._center_ultra_pub.publish(centerMsg)
 		
 		rightMsg = Range()
 		rightMsg.header.stamp = rospy.Time.now()
-		rightMsg.header.frame_id = "right_ultrasonic"
+		rightMsg.header.frame_id = "right_ultrasonic_link"
 		rightMsg.radiation_type = Range.ULTRASOUND
 		rightMsg.field_of_view = msg.field_of_view
 		rightMsg.min_range = msg.min_range
 		rightMsg.max_range = msg.max_range
 		rightMsg.range = msg.right_range
 		
-		self._right_range_pub.publish(rightMsg)
+		self._right_ultra_pub.publish(rightMsg)
+		
+	def _hw_infrareds_cb(self, msg):
+		
+		leftMsg = Range()
+		leftMsg.header.stamp = rospy.Time.now()
+		leftMsg.header.frame_id = "left_infrared_link"
+		leftMsg.radiation_type = Range.INFRARED
+		leftMsg.field_of_view = msg.field_of_view
+		leftMsg.min_range = msg.min_range
+		leftMsg.max_range = msg.max_range
+		leftMsg.range = msg.left_range
+		
+		self._left_infra_pub.publish(leftMsg)
+		
+		rightMsg = Range()
+		rightMsg.header.stamp = rospy.Time.now()
+		rightMsg.header.frame_id = "right_infrared_link"
+		rightMsg.radiation_type = Range.INFRARED
+		rightMsg.field_of_view = msg.field_of_view
+		rightMsg.min_range = msg.min_range
+		rightMsg.max_range = msg.max_range
+		rightMsg.range = msg.right_range
+		
+		self._right_infra_pub.publish(rightMsg)
 		
 	def _hw_robot_state_cb(self, msg):
 		self._get_wallbanger_state_pub.publish(msg.in_autonomous_mode)
