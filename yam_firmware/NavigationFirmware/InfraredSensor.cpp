@@ -22,7 +22,7 @@
  * device.
  * @param pin is analog IO pin for InfraredSensor.
  */
-InfraredSensor::InfraredSensor(byte pin) : {
+InfraredSensor::InfraredSensor(byte pin) {
   _pin = pin;
   _value = -1;
 }
@@ -41,7 +41,7 @@ float InfraredSensor::getDistance(void) {
  * @return float with a distance in meters
  */
 float InfraredSensor::update(void){
-  float analogRead(_pin) * 5.0f / 1024;
+  float volt = analogRead(_pin) * 5.0f / 1024;
   _value = 12.08f * pow(volt, -1.058f) * 0.01f;
   return _value;
 }

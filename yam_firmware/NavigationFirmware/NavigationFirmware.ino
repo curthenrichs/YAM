@@ -41,6 +41,7 @@
 #define USE_USBCON
 #include <ros.h>
 #include <std_msgs/Bool.h>
+#include <yam_msgs/Infrareds.h>
 #include <yam_msgs/RobotState.h>
 #include <yam_msgs/Ultrasonics.h>
 #include <yam_msgs/CartesianDrive.h>
@@ -135,6 +136,7 @@ void setup(void) {
 
   nodeHandler.advertise(robot_state_pub);
   nodeHandler.advertise(ultrasonics_pub);
+  nodeHandler.advertise(infrareds_pub);
   nodeHandler.subscribe(heartbeat_sub);
   nodeHandler.subscribe(autonomous_mode_sub);
   nodeHandler.subscribe(cartesian_drive_sub);
@@ -158,7 +160,7 @@ void setup(void) {
  * Main program loop
  */
 void loop(void) {
-
+  
   // Update watchdog results
   if (_watchdog_timeout_timer >= WATCHDOG_TIMER_TIME) {
     _watchdog_timeout_timer -=  WATCHDOG_TIMER_TIME;
@@ -213,7 +215,7 @@ void loop(void) {
   if (_autonomous_mode && _drivetrain_active) {
     wallBanger();
   }
-
+  
   nodeHandler.spinOnce();
   delay(10);
 }
@@ -231,6 +233,9 @@ static void wallBanger(void) {
     ultrasonicSensors[0].update();
     ultrasonicSensors[1].update();
     ultrasonicSensors[2].update();
+
+    infraredSensors[0].update();
+    infraredSensors[1].update();
 
     // Run state machine
     auton_update(ultrasonicSensors[0].getDistance(),
