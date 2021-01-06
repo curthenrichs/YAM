@@ -1,0 +1,21 @@
+//this is the main for yam the robot has three ultrasonic sensors  left middle and right
+//it has two motors in a tank drive fashion
+
+public class YAM
+{
+  public static void main(String[] args)
+  {
+    //create sensor objects
+    Sensor leftUltra = new LinearDistanceSensor();
+    Sensor centerUltra = new LinearDistanceSensor();
+    Sensor rightUltra = new LinearDistanceSensor();
+    
+    //creates the motor objects 
+    Output leftMotor = new Motor();
+    Output rightMotor = new Motor();
+    
+    Controller subProcessor = new YamController();
+    
+    
+  }
+}

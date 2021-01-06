@@ -1,0 +1,5 @@
+C:\Users\Curt\Desktop\TheRobotBrainProjectFolder\tcpToSerial\tcpToSerial\bin\Debug\tcpToSerial.exe
+C:\Users\Curt\Desktop\TheRobotBrainProjectFolder\tcpToSerial\tcpToSerial\bin\Debug\tcpToSerial.pdb
+C:\Users\Curt\Desktop\TheRobotBrainProjectFolder\tcpToSerial\tcpToSerial\obj\x86\Debug\tcpToSerial.exe
+C:\Users\Curt\Desktop\TheRobotBrainProjectFolder\tcpToSerial\tcpToSerial\obj\x86\Debug\tcpToSerial.pdb
+C:\Users\Curt\Desktop\TheRobotBrainProjectFolder\tcpToSerial\tcpToSerial\obj\x86\Debug\tcpToSerial.csprojResolveAssemblyReference.cache

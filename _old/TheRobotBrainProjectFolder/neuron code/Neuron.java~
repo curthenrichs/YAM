@@ -1,0 +1,110 @@
+//neurons are the specific neurons in a layer
+
+import java.util.ArrayList;
+
+public class Neuron
+{
+  //ouput level for the nueron
+   protected double output;
+   //holds the wiehgts of the neuron
+   protected ArrayList<Double> weights;
+   //holds the threshol value
+   protected double thres;
+  
+   //basic constructor that should not be used at any cost
+   public Neuron()
+   {
+     output = 0;
+     weights = null;
+     thres = 0;
+   } 
+   
+   //This is the constructor for our neuron that we likes to use
+   public Neuron(int wCount, double th)
+   {
+     output = 0;
+     //set weight array to random values for init
+     weights = new ArrayList<Double>();
+     for(int i = 0; i < wCount; i++)
+     {
+       weights.add(Math.random()); 
+     }
+     thres = th;
+   }
+   
+   public void setWeights(ArrayList<Double> w)
+   {
+      weights = w;
+   }
+   
+   
+//----------------------------------------------------<BASIC  CLASS  STUFF>--------------------------------
+   //sets teh threshold of the nueron
+   public void setThreshold(double t)
+   {
+     thres = t;
+   }
+   
+   //gives teh weihgts of the neuron
+   public ArrayList<Double> getWeights()
+   {
+     return weights;
+   }
+   
+   //gets the threshold 
+   public double getThreshold()
+   {
+     return thres;
+   }
+
+   
+   
+//--------------------------------------------<SPECIFIC  NEURON  STUFF>------------------------------------------------
+   public void act(ArrayList<Double> in)
+   {
+      //check to see if the weights array is equal is size to the input size
+      if(in.size() > weights.size())
+      {
+       //then add more random weights to the array 
+       for(int i = 0; i < (in.size() - weights.size());i++)
+       {
+          weights.add(Math.random()); 
+       }
+      }
+      
+      //run a summer
+      double sum = 0;
+      
+      for(int i = 0; i < in.size(); i++)
+      {
+        sum = sum + in.get(i) * weights.get(i); 
+      }
+      
+      //average the values and compare to threshold.
+      double ave = sum / (in.size() + 1);
+      
+      output = ave;
+   }
+   
+   //gets the output of the  neuron
+   public double getOutput()
+   {
+     if(output >= thres)
+     {
+        output = 1; 
+     }
+     else
+     {
+        output = 0; 
+     }
+     //sets the sigmoid threshold
+     return output;
+   }
+   
+   //----------------------------------------------------------------------------------------------------------------------
+   //this is the to string method for debugging
+   public String toString()
+   {
+       return "w" + weights + "\n";
+   }
+}

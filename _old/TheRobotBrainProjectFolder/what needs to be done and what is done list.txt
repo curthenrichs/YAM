@@ -1,0 +1,8 @@
+DONE:
+	Input (driver written and tested)
+	Output (driver written and tested)
+	Controller abstract written
+
+Needs work:
+	
+	YamBot server needs to be written extends controller

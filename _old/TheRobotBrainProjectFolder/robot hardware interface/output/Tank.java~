@@ -1,0 +1,86 @@
+//Curt Henrichs
+//AP Computer Science ~ Java
+//Mr. Pratt
+//Chapter 8
+
+//a specific concrete class that utilizes the drivetrain heigharchy for tank drive
+
+
+public class Tank extends AbstractDriveTrain
+{
+  //no need for varaibeles since it is all in the abstract
+  
+  //default and should not be used ever!
+  public Tank()
+  {
+     super();
+  }
+  
+  //constructor for the tnak drive
+  public Tank(String n,Motor[] m, double max)
+  {
+   super(m,max,n); 
+  }
+  
+  //implenets a basic tank drivetrain
+  public void drive(double joystickX, double joystickY, double joystickZ)
+  {
+    //we donot need to use Z since a single joystick is enough for cartesian tank that is due to no needs me strafe
+
+    //get the maxium and the minimum that we can move
+    double max = joystickX + joystickY;
+    double min = joystickX - joystickY;
+    double leftMotors, rightMotors;
+    
+    //chack to see if we overbleed
+    if(max > super.getMaxSpeed())
+    {
+      max = super.getMaxSpeed();
+    }
+    
+    //get to two different sides of speed
+    if(min <= 0)
+    {
+      leftMotors = min;
+      rightMotors = max;
+    }
+    else
+    {
+      leftMotors = max;
+      rightMotors = min;
+    }
+    
+    //,.,.,.,.,.,.,.,.,.,.,
+    //we will need to identify the left and rightmotors by their invert. if they are inverted then they are left else they are right motors
+    for(int j = 0; j < motors.length; j++)
+    {
+       if(motors[j].getInvert())
+       {
+          //left motor
+         motors[j].setSpeed(leftMotors);
+       }
+       else
+       {
+          //right motor 
+         motors[j].setSpeed(rightMotors);
+       }
+    }
+   //,.,.,.,.,.,.,.,.,.,.,.,. 
+  }
+  
+  public String toString()
+  {
+    //get the basics of the drivetrain in string
+    String temp = "Name " + name + " max speed " + maxSpeed + " is field centric " + fieldCentric + " is closed loop " + closedLoop + " ";
+    
+    temp += " drivetrian motors ";
+    
+    //get the strings for the motors
+    for(int i = 0; i < motors.length; i++)
+    {
+      temp += motors[i].toString() + " and ";
+    }
+    
+    return temp;
+  }
+}
