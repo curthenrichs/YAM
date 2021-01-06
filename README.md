@@ -1,5 +1,5 @@
 # YAM
-YAM (Your automated machine) is a mobile robot that I use as a test/experimentation platform.
+YAM (Your Automated Machine) is a mobile robot that I have been building on and off for the past several years. I use it as a test/experimentation platform and as a learning experience.
 
 ## Architecture
 The compute architecture for YAM consists of two Arduino microcontrollers and a nVidia Jetson Nano. One microcontroller is repsonsible for low-level drivetrain and spatial sensing. The other inferfaces with YAMs frontpanel IO. 
