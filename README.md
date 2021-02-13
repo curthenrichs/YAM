@@ -58,3 +58,6 @@ Optionally install,
 VIO
 https://github.com/uzh-rpg/rpg_svo
 https://github.com/uzh-rpg/rpg_svo/wiki/Installation:-General-for-ARM-processors
+
+## Fork Notes
+I forked this from an alt github that I intend to delete in the near future.
